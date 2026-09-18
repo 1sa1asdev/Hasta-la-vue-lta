@@ -1,6 +1,6 @@
 # Hasta La vue-lta
 
-
+### ENGLISH ONLY DZENKI
 
 ## Stand-up Meetings
 
@@ -29,4 +29,11 @@
 - Disagreements on decisions → team vote, majority wins, we commit and move on
 - No blame culture – we fix problems, not people's personalities
 - Be open to feedback – don't take it personally, it's about the code, not about you
+
+## PR REQUIREMENTS
+---
+- At least 1 reviewer must approve the PR.
+- Required status checks/tests must pass.
+- PRs cannot be merged directly into main or development.
+- Possibly the branch must be up to date before merging.
 

@@ -225,7 +225,7 @@ nothing is invented at render time, the output can never drift from the template
 | Flag | Effect |
 | --- | --- |
 | `-t, --template <path>` | Use a specific template file |
-| `-o, --out <path>` | Write the body there; `-` prints to stdout only |
+| `-o, --out <path>` | Save the body there; `-` prints it instead of saving it (the body is piped to gh on stdin) |
 | `-a, --answers <path>` | Read answers from JSON instead of asking (non-interactive) |
 | `--title <text>` | Skip the title question |
 | `--base <branch>` | Target branch (default: detected, e.g. `development`) |
@@ -235,7 +235,7 @@ nothing is invented at render time, the output can never drift from the template
 | `--no-push` | Assume the branch is already pushed |
 | `--keep-comments` | Keep the `<!-- hints -->` in the generated body |
 | `--no-git` | Ignore git context entirely |
-| `-y, --yes` | Skip the final "write it?" confirmation |
+| `-y, --yes` | Auto-accept the push and create confirmations (for scripts) |
 | `-p, --print` | Also print the body to stdout |
 
 ### Answer files

@@ -65,7 +65,7 @@ request with the GitHub CLI. Use --no-create if you only want the body.
 
 Options
   -t, --template <path>   Use a specific template file
-  -o, --out <path>        Where to write the body ("-" prints to stdout only)
+  -o, --out <path>        Where to save the body ("-" prints it instead of saving)
   -a, --answers <path>    Read answers from JSON instead of asking
       --title <text>      Skip the title question
       --base <branch>     Target branch for the pull request (default: detected)
@@ -75,7 +75,7 @@ Options
       --no-push           Assume the branch is already pushed
       --keep-comments     Keep <!-- hints --> in the generated body
       --no-git            Ignore git context (no commit suggestions)
-  -y, --yes               Do not ask for a final confirmation
+  -y, --yes               Auto-confirm pushing and creating (for scripts)
   -p, --print             Also print the body to stdout
   -h, --help              Show this help
 
@@ -258,12 +258,11 @@ async function run() {
     outPath = dir ? path.join(dir, 'PR_BODY.md') : null;
   }
 
+  // No confirmation here on purpose: writing the file is a side effect the user
+  // cannot get wrong (it lives inside .git/, and it is what `gh pr create`
+  // consumes). Asking "may I save this?" only adds a way to end up with no
+  // pull request by accident.
   if (outPath) {
-    const ok = await confirmStep(`\nWrite the PR body to ${displayPath(cwd, outPath)}?`);
-    if (!ok) {
-      console.log(dim('  Nothing written. The rendered body is above.'));
-      return 0;
-    }
     await mkdir(path.dirname(outPath), { recursive: true });
     await writeFile(outPath, body, 'utf8');
     console.log(`\n${green('✔')} Wrote ${displayPath(cwd, outPath)} (${body.split('\n').length - 1} lines)`);
@@ -298,9 +297,8 @@ async function run() {
     }
   };
 
-  // `--no-create`, or an answer body that was never written to disk, means we
-  // stop here on purpose.
-  if (flags['no-create'] || !relOut) {
+  // `--no-create` means the user only wants the body.
+  if (flags['no-create']) {
     printFallback();
     return 0;
   }
@@ -341,6 +339,12 @@ async function run() {
         return 1;
       }
       console.log(`  ${green('✔')} Pushed ${branch}`);
+    } else {
+      // Declining the push is fine, but creating would fail with gh's "you must
+      // first push the current branch" — say so instead of showing that error.
+      console.log(dim('  Skipping the pull request: it cannot be created until the branch is pushed.'));
+      printFallback();
+      return 0;
     }
   }
 
@@ -369,7 +373,9 @@ async function run() {
     cwd,
     ghPath: gh.path,
     title,
-    bodyFile: relOut,
+    // No file on disk (e.g. `--out -`)? Pipe the body to gh instead.
+    bodyFile: relOut ?? '-',
+    stdinBody: relOut ? undefined : body,
     base,
     draft: flags.draft,
     reviewers: flags.reviewer ?? [],

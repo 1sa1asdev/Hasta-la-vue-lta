@@ -32,12 +32,21 @@ const GH_VERSION = /^gh version (\d+\.\d+\.\d+)/m;
  * `interactive` inherits stdin so that the tools we wrap can still prompt —
  * git credential helpers, an SSH passphrase, `gh`'s own device flow. Probing
  * (`--version`, `auth status`) deliberately does not.
+ *
+ * `input` pipes text into the command's stdin, which is how the body reaches
+ * `gh pr create --body-file -` when the user did not want a file on disk.
  */
-export function run(command, args, cwd, { interactive = false } = {}) {
+export function run(command, args, cwd, { interactive = false, input } = {}) {
   const result = spawnSync(command, args, {
     cwd,
     encoding: 'utf8',
-    stdio: interactive ? ['inherit', 'pipe', 'pipe'] : ['ignore', 'pipe', 'pipe'],
+    input,
+    stdio:
+      input !== undefined
+        ? ['pipe', 'pipe', 'pipe']
+        : interactive
+          ? ['inherit', 'pipe', 'pipe']
+          : ['ignore', 'pipe', 'pipe'],
   });
   return {
     ok: result.status === 0 && !result.error,
@@ -131,9 +140,14 @@ export function parsePullRequestUrl(text) {
   return match ? match[0] : null;
 }
 
-export function createPullRequest({ cwd, ghPath = 'gh', ...options }) {
+export function createPullRequest({ cwd, ghPath = 'gh', stdinBody, ...options }) {
   const args = buildCreateArgs(options);
-  const result = run(ghPath, args, cwd, { interactive: true });
+  // With no body file we hand the markdown to gh on stdin (`--body-file -`),
+  // so "print the body instead of saving it" still ends in a real pull request.
+  const result = run(ghPath, args, cwd, {
+    input: stdinBody,
+    interactive: stdinBody === undefined,
+  });
   return {
     ...result,
     args,

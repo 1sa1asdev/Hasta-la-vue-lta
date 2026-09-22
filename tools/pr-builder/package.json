@@ -1,0 +1,16 @@
+{
+  "name": "@hasta-la-vue-lta/pr-builder",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Interactive CLI that builds a pull request body from .github/pull_request_template.md",
+  "type": "module",
+  "bin": {
+    "pr-builder": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

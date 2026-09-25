@@ -13,6 +13,17 @@ npm start
 
 Appen ligger sen på http://localhost:3000 och API:et pa http://localhost:4000.
 
+## Skapa en pull request
+
+```bash
+npm run pr
+```
+
+CLI:n läser `.github/pull_request_template.md`, ställer frågor utifrån mallen
+(inklusive checklistan) och skriver ett färdigt PR-body till `.git/PR_BODY.md`.
+Commit-meddelanden och branchnamn används som förslag. Se
+[`tools/pr-builder/README.md`](tools/pr-builder/README.md) för hur den fungerar.
+
 ## Struktur
 
 - `api/` – Express + Postgres (Drizzle)

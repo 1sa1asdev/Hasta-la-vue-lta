@@ -11,7 +11,7 @@ npm run seed
 npm start
 ```
 
-Appen ligger sen på http://localhost:3000 och API:et pa http://localhost:4000.
+Appen ligger sen på http://localhost:3001 och API:et pa http://localhost:4000.
 
 ## Skapa en pull request
 

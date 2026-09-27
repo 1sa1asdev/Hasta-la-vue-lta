@@ -22,7 +22,7 @@ flowchart LR
 
 ## Uppmätta tider
 
-Tider från en grön körning i GitHub Actions:
+Tider från den gröna GitHub Actions-körningen där Bygg-jobbet tog totalt 25 s och Kvalitet-jobbet 19 s:
 
 | Steg | Tid |
 | --- | ---: |

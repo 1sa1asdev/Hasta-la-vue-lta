@@ -14,7 +14,11 @@
     "dev:client": "npm run dev --workspace=client",
     "seed": "npm run seed --workspace=api",
     "pr": "node tools/pr-builder/src/cli.js",
-    "pr:test": "node --test tools/pr-builder/test"
+    "pr:test": "node --test tools/pr-builder/test",
+    "lint": "npm run lint --workspace=client",
+    "format:check": "npm run format:check --workspace=client",
+    "test": "npm run test --workspace=client",
+    "build": "npm run build --workspace=client"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

@@ -37,7 +37,3 @@ Tider från den gröna GitHub Actions-körningen där Bygg-jobbet tog totalt 25 
 | Bygg totalt | 25 s |
 
 Det längsta enskilda steget var `npm ci` i Bygg-jobbet med 10 sekunder.
-
-## Prestanda
-
-Det längsta enskilda steget är `npm ci`. Om pipelinen blir för långsam skulle vi först undersöka den dubbla installationen av dependencies, eftersom både Kvalitet och Bygg kör `npm ci`. Två separata jobb ger parallell körning och tydligare status checks, men kostnaden är att dependencies installeras två gånger.

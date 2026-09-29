@@ -11,7 +11,7 @@ Plattform för friluftsdestinationer. Redaktionella guider, användarnas egna tu
 npm install
 docker compose -f docker-compose.dev.yml up -d
 npm run seed
-npm start
+npm run dev:client
 ```
 
 Appen ligger sen på http://localhost:3001 och API:et pa http://localhost:4000.
@@ -31,7 +31,18 @@ Commit-meddelanden och branchnamn används som förslag. Se
 
 - `api/` – Express + Postgres (Drizzle)
 - `web/` – React + Vite
+- `client/` – Vue 3 + Vite
 
 ## Deploy
 
 Fråga Marcus.
+
+## M1-kommandon
+
+- `npm run dev:client` – startar Vue-klienten på port 3001.
+- `npm run lint` – kör ESLint.
+- `npm run format:check` – kontrollerar Prettier-formattering.
+- `npm test` – kör Vitest en gång och avslutas.
+- `npm run build` – bygger Vue-klienten för produktion.
+
+Projektet har inget `npm start`-script. Använd `npm run dev:client` för Vue-klienten.

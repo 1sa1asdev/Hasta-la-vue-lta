@@ -3,5 +3,5 @@ const Button = ({ children, onClick }) => (
     {children}
   </button>
 );
-
+const variable = "test"
 export default Button;

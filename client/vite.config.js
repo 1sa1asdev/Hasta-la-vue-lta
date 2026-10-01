@@ -11,6 +11,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@utpost/shared': fileURLToPath(new URL('../shared/src/types.ts', import.meta.url)),
     },
   },
 })

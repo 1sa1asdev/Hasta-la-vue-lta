@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.4.2",
   "workspaces": [
+    "shared",
     "api",
     "web",
     "client"
@@ -15,6 +16,7 @@
     "seed": "npm run seed --workspace=api",
     "pr": "node tools/pr-builder/src/cli.js",
     "pr:test": "node --test tools/pr-builder/test",
+    "typecheck": "npm run typecheck --workspace=client",
     "lint": "npm run lint --workspace=client",
     "format:check": "npm run format:check --workspace=client",
     "test": "npm run test --workspace=client",

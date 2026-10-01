@@ -1,5 +1,9 @@
-<script setup>
-const { guide } = defineProps(['guide'])
+<script setup lang="ts">
+import type { Guide } from '@utpost/shared'
+
+const { guide } = defineProps<{
+  guide: Guide
+}>()
 </script>
 
 <template>

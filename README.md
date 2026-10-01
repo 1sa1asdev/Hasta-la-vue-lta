@@ -7,6 +7,8 @@ Plattform för friluftsdestinationer. Redaktionella guider, användarnas egna tu
 
 ## Kom igång
 
+Kräver Node.js 22.18 eller senare.
+
 ```bash
 npm install
 docker compose -f docker-compose.dev.yml up -d
@@ -32,17 +34,19 @@ Commit-meddelanden och branchnamn används som förslag. Se
 - `api/` – Express + Postgres (Drizzle)
 - `web/` – React + Vite
 - `client/` – Vue 3 + Vite
+- `shared/` – gemensamma TypeScript-typer för API och klient.
 
 ## Deploy
 
 Fråga Marcus.
 
-## M1-kommandon
+## Kommandon
 
 - `npm run dev:client` – startar Vue-klienten på port 3001.
 - `npm run lint` – kör ESLint.
 - `npm run format:check` – kontrollerar Prettier-formattering.
 - `npm test` – kör Vitest en gång och avslutas.
 - `npm run build` – bygger Vue-klienten för produktion.
+- `npm run typecheck` – kontrollerar TypeScript-typer i klienten och API:et.
 
 Projektet har inget `npm start`-script. Använd `npm run dev:client` för Vue-klienten.

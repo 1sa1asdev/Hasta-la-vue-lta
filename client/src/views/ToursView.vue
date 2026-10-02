@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { get } from '../api'
+import { get } from '../api.js'
 import { onMounted, ref } from 'vue'
 import type { TourWithRelations } from '@utpost/shared'
 

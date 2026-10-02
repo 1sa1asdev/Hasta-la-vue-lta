@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import GuideCard from '../components/GuideCard.vue'
-import { get } from '../api'
+import { get } from '../api.js'
 import { onMounted, ref, watch } from 'vue'
 import type { Guide } from '@utpost/shared'
 

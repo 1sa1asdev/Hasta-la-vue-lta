@@ -1,14 +1,24 @@
-<script setup>
-import { reactive, onMounted, ref } from 'vue'
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import type { Guide, Photo, Tour, TourLog, User } from '@utpost/shared'
 
-let tours = reactive([])
+type TourWithRelations = Tour & {
+  user: User
+  guide: Guide | null
+  photos: Photo[]
+  logs: TourLog[]
+}
+
+const tours = ref<TourWithRelations[]>([])
 const loading = ref(true)
-const error = ref(null)
+const error = ref<unknown>(null)
 
 onMounted(() => {
   fetch('http://localhost:4000/api/tours')
     .then((response) => response.json())
-    .then((toursResponse) => (tours = toursResponse))
+    .then((toursResponse: TourWithRelations[]) => {
+      tours.value = toursResponse
+    })
     .catch((e) => {
       console.log('Error', e)
       error.value = e
@@ -19,7 +29,7 @@ onMounted(() => {
 
 <template>
   <h3>Turer</h3>
-  <table v-if="loading === false && tours.length > 0" className="tours">
+  <table v-if="loading === false && tours.length > 0" class="tours">
     <thead>
       <tr>
         <th>Tur</th>

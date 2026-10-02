@@ -54,6 +54,14 @@ export interface Photo {
   height: number
   created_at: string
 }
+
+export type TourWithRelations = Tour & {
+  user: User
+  guide: Guide | null
+  photos: Photo[]
+  logs: TourLog[]
+}
+
 export interface ApiError {
   error: string
 }

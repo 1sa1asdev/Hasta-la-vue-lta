@@ -1,22 +1,15 @@
 <script setup lang="ts">
+import { get } from '../api'
 import { onMounted, ref } from 'vue'
-import type { Guide, Photo, Tour, TourLog, User } from '@utpost/shared'
-
-type TourWithRelations = Tour & {
-  user: User
-  guide: Guide | null
-  photos: Photo[]
-  logs: TourLog[]
-}
+import type { TourWithRelations } from '@utpost/shared'
 
 const tours = ref<TourWithRelations[]>([])
 const loading = ref(true)
 const error = ref<unknown>(null)
 
 onMounted(() => {
-  fetch('http://localhost:4000/api/tours')
-    .then((response) => response.json())
-    .then((toursResponse: TourWithRelations[]) => {
+  get<TourWithRelations[]>('/tours')
+    .then((toursResponse) => {
       tours.value = toursResponse
     })
     .catch((e) => {

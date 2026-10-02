@@ -2,7 +2,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import type { TourDetail } from '@utpost/shared'
-import {get} from '..api/'
+import {get} from '../api'
+import {elevationGain} from '../../lib/tours'
 
 
 const route = useRoute()
@@ -22,7 +23,7 @@ const climb = computed(() =>
  tour.value ? elevationGain(tour.value.logs) : 0 
 )
 
-const time = (iso) => new Date(iso).toLocaleTimeString('sv-SE')
+const time = (iso: string) => new Date(iso).toLocaleTimeString('sv-SE')
 
 </script>
 

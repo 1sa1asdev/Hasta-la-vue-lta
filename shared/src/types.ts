@@ -54,3 +54,6 @@ export interface Photo {
   height: number
   created_at: string
 }
+export interface ApiError {
+  error: string
+}

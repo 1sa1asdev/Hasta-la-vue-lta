@@ -6,7 +6,7 @@ import { pool } from "../db/client.js";
 export const guidesRouter = Router();
 
 guidesRouter.get("/", async (req, res: Response<Guide[]>) => {
-  const result = await pool.query(
+  const result = await pool.query<Guide[]>(
     "select * from guides order by updated_at desc",
   );
   res.json(result.rows);

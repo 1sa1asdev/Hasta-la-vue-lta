@@ -1,8 +1,8 @@
-// Formatering som flera vyer delar. Ligger utanför komponenterna så att den kan
-// enhetstestas utan att rendera Vue.
+// Formatting shared by several views. It lives outside the components so it can be
+// unit tested without rendering Vue.
 
-/** Avstånd i meter visas som kilometer med en decimal: 12500 → 12.5 */
+/** Distance in meters is shown as kilometers with one decimal: 12500 → 12.5 */
 export const distanceKm = (meters: number): number => Math.round(meters / 100) / 10
 
-/** Tidsstämpel från API:et visas som svensk 24-timmarsklocka: 08:05:00 */
+/** A timestamp from the API is shown as a Swedish 24-hour clock: 08:05:00 */
 export const formatTime = (iso: string): string => new Date(iso).toLocaleTimeString('sv-SE')

@@ -4,7 +4,7 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import TourDetailView from './TourDetailView.vue'
 import { logFixture, stubFetch, tourDetailFixture } from '../test/fixtures'
 
-// Vyn läser :id från routen, så den behöver en riktig router.
+// The view reads :id from the route, so it needs a real router.
 const renderDetail = async (id = '7') => {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -21,7 +21,7 @@ afterEach(() => {
 })
 
 describe('TourDetailView', () => {
-  it('hämtar turen med id:t från adressen', async () => {
+  it('fetches the tour with the id from the URL', async () => {
     const fetchMock = stubFetch(tourDetailFixture())
     await renderDetail('7')
 
@@ -29,7 +29,7 @@ describe('TourDetailView', () => {
     expect(fetchMock).toHaveBeenCalledWith('http://localhost:4000/api/tours/7')
   })
 
-  it('visar sträcka, antal mätpunkter och höjdmeter', async () => {
+  it('shows the distance, the number of logs and the elevation gain', async () => {
     stubFetch(
       tourDetailFixture({
         distance_m: 12500,
@@ -45,7 +45,7 @@ describe('TourDetailView', () => {
     expect(await screen.findByText(/12\.5 km · 3 mätpunkter · 50 höjdmeter/)).toBeInTheDocument()
   })
 
-  it('visar varje mätpunkt med tid, höjd och puls', async () => {
+  it('shows every log with time, elevation and heart rate', async () => {
     stubFetch(
       tourDetailFixture({ logs: [logFixture({ id: 1, elevation_m: 500, heart_rate: 132 })] }),
     )
@@ -54,8 +54,8 @@ describe('TourDetailView', () => {
     expect(await screen.findByText('08:05:00 · 500 m · 132 slag/min')).toBeInTheDocument()
   })
 
-  it('visar felmeddelandet när turen inte kan hämtas', async () => {
-    stubFetch({ error: 'Hittades inte' }, 404)
+  it('shows the error message when the tour cannot be fetched', async () => {
+    stubFetch({ error: 'Not found' }, 404)
     await renderDetail('999')
 
     expect(await screen.findByRole('alert')).toHaveTextContent('API svarade 404')

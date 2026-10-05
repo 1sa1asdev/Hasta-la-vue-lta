@@ -18,7 +18,7 @@ onMounted(async () => {
   }
 })
 
-// Porterat rakt av från TourDetail.jsx – samma uträkning, samma resultat.
+// Ported straight from TourDetail.jsx – same calculation, same result.
 const climb = computed(() => (tour.value ? elevationGain(tour.value.logs) : 0))
 </script>
 

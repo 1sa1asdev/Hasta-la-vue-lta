@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest'
 import { afterEach } from 'vitest'
 import { cleanup } from '@testing-library/vue'
 
-// Utan cleanup ligger varje renderad komponent kvar i document.body mellan testerna.
+// Without cleanup every rendered component stays in document.body between tests.
 afterEach(() => {
   cleanup()
 })

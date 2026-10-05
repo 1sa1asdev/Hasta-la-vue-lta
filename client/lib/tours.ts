@@ -21,7 +21,7 @@ export interface TourRow {
   photoCount: number
 }
 
-/** Raderna i turlistan. En tur utan guide visas som '-' i tabellen. */
+/** Rows for the tour list. A tour without a guide is shown as '-' in the table. */
 export const toTourRow = (tour: TourWithRelations): TourRow => ({
   id: tour.id,
   title: tour.title,

@@ -17,7 +17,7 @@ afterEach(() => {
 })
 
 describe('GuidesView', () => {
-  it('visar guiderna från API:et med länk och antal', async () => {
+  it('shows the guides from the API with a link and a count', async () => {
     stubFetch(twoGuides())
     renderView()
 
@@ -29,7 +29,7 @@ describe('GuidesView', () => {
     expect(screen.getByText('(2 / 2)')).toBeInTheDocument()
   })
 
-  it('filtrerar listan medan man skriver i sökfältet', async () => {
+  it('filters the list while typing in the search field', async () => {
     stubFetch(twoGuides())
     renderView()
     await screen.findByText('(2 / 2)')
@@ -41,7 +41,7 @@ describe('GuidesView', () => {
     expect(screen.getByText('(1 / 2)')).toBeInTheDocument()
   })
 
-  it('visar hela listan igen när sökfältet töms', async () => {
+  it('shows the full list again when the search field is cleared', async () => {
     stubFetch(twoGuides())
     renderView()
     await screen.findByText('(2 / 2)')
@@ -53,8 +53,8 @@ describe('GuidesView', () => {
     expect(screen.getByText('(2 / 2)')).toBeInTheDocument()
   })
 
-  it('visar felmeddelandet när guiderna inte kan hämtas', async () => {
-    stubFetch({ error: 'Serverfel' }, 500)
+  it('shows the error message when the guides cannot be fetched', async () => {
+    stubFetch({ error: 'Server error' }, 500)
     renderView()
 
     expect(await screen.findByText(/API svarade 500/)).toBeInTheDocument()

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { API_URL, get, post } from './api'
 
-// fetch() rejectar inte vid 404/500, så svaret måste kontrolleras av anroparen.
+// fetch() does not reject on 404/500, so the caller has to check the response.
 const response = (body: unknown, status = 200) => ({
   ok: status >= 200 && status < 300,
   status,
@@ -13,7 +13,7 @@ afterEach(() => {
 })
 
 describe('get', () => {
-  it('hämtar från API-adressen och parsar svaret', async () => {
+  it('fetches from the API URL and parses the response', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response([{ id: 1, slug: 'kebnekaise' }]))
     vi.stubGlobal('fetch', fetchMock)
 
@@ -21,19 +21,19 @@ describe('get', () => {
     expect(fetchMock).toHaveBeenCalledWith(`${API_URL}/guides`)
   })
 
-  it('kastar fel med statuskoden när API:et svarar med ett fel', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ error: 'Hittades inte' }, 404)))
+  it('throws with the status code when the API answers with an error', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ error: 'Not found' }, 404)))
 
     await expect(get('/guides/999')).rejects.toThrow('API svarade 404')
   })
 })
 
 describe('post', () => {
-  it('skickar brödtexten som JSON med rätt innehållstyp', async () => {
+  it('sends the body as JSON with the right content type', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({ token: 'abc' }))
     vi.stubGlobal('fetch', fetchMock)
 
-    const body = { email: 'anna@example.com', password: 'hemligt' }
+    const body = { email: 'anna@example.com', password: 'secret' }
     await expect(post('/auth/login', body)).resolves.toEqual({ token: 'abc' })
 
     const [url, init] = fetchMock.mock.calls[0]
@@ -43,13 +43,13 @@ describe('post', () => {
     expect(JSON.parse(init.body)).toEqual(body)
   })
 
-  // API:et svarar med JSON även vid 401, och inloggningen läser { error } ur svaret.
-  it('returnerar felmeddelandet vid 401 i stället för att kasta', async () => {
+  // The API answers with JSON on 401 too, and the login reads { error } from it.
+  it('returns the error message on 401 instead of throwing', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(response({ error: 'Fel e-post eller lösenord' }, 401)),
+      vi.fn().mockResolvedValue(response({ error: 'Wrong email or password' }, 401)),
     )
 
-    await expect(post('/auth/login', {})).resolves.toEqual({ error: 'Fel e-post eller lösenord' })
+    await expect(post('/auth/login', {})).resolves.toEqual({ error: 'Wrong email or password' })
   })
 })

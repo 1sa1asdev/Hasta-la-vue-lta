@@ -12,7 +12,7 @@ afterEach(() => {
 })
 
 describe('ToursView', () => {
-  it('visar en rad per tur med avsändare, sträcka och antal bilder', async () => {
+  it('shows one row per tour with author, distance and photo count', async () => {
     stubFetch([
       tourFixture({
         id: 7,
@@ -33,7 +33,7 @@ describe('ToursView', () => {
     expect(within(row).getByText('2')).toBeInTheDocument()
   })
 
-  it('visar "-" i guidekolumnen när turen saknar guide', async () => {
+  it('shows "-" in the guide column when the tour has no guide', async () => {
     stubFetch([tourFixture({ guide: null })])
     renderView()
 
@@ -41,7 +41,7 @@ describe('ToursView', () => {
     expect(within(row).getByText('-')).toBeInTheDocument()
   })
 
-  it('visar guidens titel i guidekolumnen när turen har en guide', async () => {
+  it('shows the guide title in the guide column when the tour has a guide', async () => {
     stubFetch([tourFixture({ guide: guideFixture({ id: 3, title: 'Kebnekaise' }) })])
     renderView()
 
@@ -59,8 +59,8 @@ describe('ToursView', () => {
     await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument())
   })
 
-  it('visar felmeddelandet när turerna inte kan hämtas', async () => {
-    stubFetch({ error: 'Serverfel' }, 500)
+  it('shows the error message when the tours cannot be fetched', async () => {
+    stubFetch({ error: 'Server error' }, 500)
     renderView()
 
     expect(await screen.findByText(/API svarade 500/)).toBeInTheDocument()

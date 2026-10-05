@@ -1,6 +1,6 @@
 import type { Guide } from '@utpost/shared'
 
-/** Sökningen matchar början av titeln, skiftlägesoberoende och utan blanksteg runt ordet. */
+/** The search matches the start of the title, case-insensitively and trimmed. */
 export const filterGuidesByTitle = (guides: Guide[], query: string): Guide[] => {
   const needle = query.trim().toLowerCase()
   if (needle === '') return guides
@@ -8,5 +8,5 @@ export const filterGuidesByTitle = (guides: Guide[], query: string): Guide[] => 
   return guides.filter((guide) => guide.title.toLowerCase().startsWith(needle))
 }
 
-/** Guidekorten visar bara ett kort utdrag av HTML-innehållet. */
+/** The guide cards only show a short excerpt of the HTML body. */
 export const excerpt = (html: string, maxLength = 180): string => html.slice(0, maxLength)

@@ -8,7 +8,7 @@ const renderCard = (guide) =>
   render(GuideCard, { props: { guide }, global: { stubs: { RouterLink: RouterLinkStub } } })
 
 describe('GuideCard', () => {
-  it('länkar till guidens slug', () => {
+  it('links to the slug of the guide', () => {
     renderCard(guideFixture({ slug: 'kebnekaise', title: 'Kebnekaise' }))
 
     expect(screen.getByRole('link', { name: 'Kebnekaise' })).toHaveAttribute(
@@ -17,13 +17,13 @@ describe('GuideCard', () => {
     )
   })
 
-  it('visar landskap, svårighetsgrad och längd', () => {
+  it('shows the region, the difficulty and the length', () => {
     renderCard(guideFixture({ region: 'Jämtland', difficulty: 'svår', length_km: 19 }))
 
     expect(screen.getByText('Jämtland · svår · 19 km')).toBeInTheDocument()
   })
 
-  it('kortar ned lång brödtext till ett utdrag', () => {
+  it('truncates a long body to an excerpt', () => {
     renderCard(guideFixture({ body_html: 'x'.repeat(300) }))
 
     expect(screen.getByText('x'.repeat(180))).toBeInTheDocument()

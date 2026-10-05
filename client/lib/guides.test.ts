@@ -9,7 +9,7 @@ const guide = (id: number, title: string): Guide => ({
   region: 'Lappland',
   difficulty: 'medel',
   length_km: 12,
-  body_html: '<p>Beskrivning</p>',
+  body_html: '<p>Description</p>',
   hero_image: null,
   published: true,
   author_id: null,
@@ -19,29 +19,29 @@ const guide = (id: number, title: string): Guide => ({
 const guides = [guide(1, 'Kebnekaise'), guide(2, 'Sarek'), guide(3, 'Stora Sjöfallet')]
 
 describe('filterGuidesByTitle', () => {
-  it('visar alla guider när sökordet är tomt', () => {
+  it('returns all guides when the search term is empty', () => {
     expect(filterGuidesByTitle(guides, '')).toHaveLength(3)
   })
 
-  it('ignorerar blanksteg runt sökordet', () => {
+  it('ignores whitespace around the search term', () => {
     expect(filterGuidesByTitle(guides, '  sarek ')).toEqual([guides[1]])
   })
 
-  it('matchar oberoende av stora och små bokstäver', () => {
+  it('matches regardless of letter case', () => {
     expect(filterGuidesByTitle(guides, 'kEbNe')).toEqual([guides[0]])
   })
 
-  it('ger en tom lista när inget matchar', () => {
-    expect(filterGuidesByTitle(guides, 'blåfjällen')).toEqual([])
+  it('returns an empty list when nothing matches', () => {
+    expect(filterGuidesByTitle(guides, 'Everest')).toEqual([])
   })
 })
 
 describe('excerpt', () => {
-  it('kortar ned lång text till 180 tecken', () => {
+  it('truncates long text to 180 characters', () => {
     expect(excerpt('x'.repeat(300))).toBe('x'.repeat(180))
   })
 
-  it('lämnar kort text oförändrad', () => {
-    expect(excerpt('<p>Kort text</p>')).toBe('<p>Kort text</p>')
+  it('leaves short text unchanged', () => {
+    expect(excerpt('<p>Short text</p>')).toBe('<p>Short text</p>')
   })
 })

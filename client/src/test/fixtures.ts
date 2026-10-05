@@ -8,7 +8,7 @@ export const guideFixture = (overrides: Partial<Guide> = {}): Guide => ({
   region: 'Lappland',
   difficulty: 'medel',
   length_km: 12,
-  body_html: '<p>Kort beskrivning</p>',
+  body_html: '<p>Short description</p>',
   hero_image: null,
   published: true,
   author_id: null,
@@ -62,7 +62,7 @@ export const tourDetailFixture = (overrides: Partial<TourDetail> = {}): TourDeta
   ...overrides,
 })
 
-/** Låter komponenternas fetch-anrop svara som API:et gör. */
+/** Makes the fetch calls in the components answer the way the API does. */
 export const stubFetch = (body: unknown, status = 200) => {
   const fetchMock = vi.fn().mockResolvedValue({
     ok: status >= 200 && status < 300,
@@ -73,7 +73,7 @@ export const stubFetch = (body: unknown, status = 200) => {
   return fetchMock
 }
 
-/** Håller fetch-anropet öppet tills testet själv släpper svaret. */
+/** Keeps the fetch call open until the test releases the response. */
 export const stubPendingFetch = () => {
   let respond!: (body: unknown, status?: number) => void
   vi.stubGlobal(

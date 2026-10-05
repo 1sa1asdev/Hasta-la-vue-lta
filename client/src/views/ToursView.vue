@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { get } from '../api.js'
-import { onMounted, ref } from 'vue'
+import { toTourRow } from '../../lib/tours'
+import { computed, onMounted, ref } from 'vue'
 import type { TourWithRelations } from '@utpost/shared'
 
 const tours = ref<TourWithRelations[]>([])
 const loading = ref(true)
 const error = ref<unknown>(null)
+const rows = computed(() => tours.value.map(toTourRow))
 
 onMounted(() => {
   get<TourWithRelations[]>('/tours')
@@ -22,7 +24,7 @@ onMounted(() => {
 
 <template>
   <h3>Turer</h3>
-  <table v-if="loading === false && tours.length > 0" class="tours">
+  <table v-if="loading === false && rows.length > 0" class="tours">
     <thead>
       <tr>
         <th>Tur</th>
@@ -33,14 +35,14 @@ onMounted(() => {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="tour in tours" :key="tour.id">
+      <tr v-for="row in rows" :key="row.id">
         <td>
-          <RouterLink :to="'/turer/' + tour.id">{{ tour.title }}</RouterLink>
+          <RouterLink :to="'/turer/' + row.id">{{ row.title }}</RouterLink>
         </td>
-        <td>{{ tour.user?.display_name }}</td>
-        <td>{{ tour.guide ? tour.guide.title : '-' }}</td>
-        <td>{{ Math.round(tour.distance_m / 100) / 10 }} km</td>
-        <td>{{ tour.photos.length }}</td>
+        <td>{{ row.author }}</td>
+        <td>{{ row.guide }}</td>
+        <td>{{ row.distanceKm }} km</td>
+        <td>{{ row.photoCount }}</td>
       </tr>
     </tbody>
   </table>

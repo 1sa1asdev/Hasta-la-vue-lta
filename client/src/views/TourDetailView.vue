@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import type { TourDetail } from '@utpost/shared'
 import { get } from '../api'
+import { distanceKm, formatTime } from '../../lib/format'
 import { elevationGain } from '../../lib/tours'
 
 const route = useRoute()
@@ -19,8 +20,6 @@ onMounted(async () => {
 
 // Porterat rakt av från TourDetail.jsx – samma uträkning, samma resultat.
 const climb = computed(() => (tour.value ? elevationGain(tour.value.logs) : 0))
-
-const time = (iso: string) => new Date(iso).toLocaleTimeString('sv-SE')
 </script>
 
 <template>
@@ -29,14 +28,14 @@ const time = (iso: string) => new Date(iso).toLocaleTimeString('sv-SE')
   <div v-else>
     <h1>{{ tour.title }}</h1>
     <p class="muted">
-      {{ Math.round(tour.distance_m / 100) / 10 }} km · {{ tour.logs.length }} mätpunkter ·
+      {{ distanceKm(tour.distance_m) }} km · {{ tour.logs.length }} mätpunkter ·
       {{ climb }} höjdmeter
     </p>
     <p v-if="tour.notes">{{ tour.notes }}</p>
     <h2>Mätpunkter</h2>
     <ol class="logs">
       <li v-for="log in tour.logs" :key="log.id">
-        {{ time(log.recorded_at) }} · {{ log.elevation_m }} m · {{ log.heart_rate }} slag/min
+        {{ formatTime(log.recorded_at) }} · {{ log.elevation_m }} m · {{ log.heart_rate }} slag/min
       </li>
     </ol>
   </div>

@@ -7,6 +7,8 @@ describe('GuidesView', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
         json: vi.fn().mockResolvedValue([
           {
             id: 1,

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import GuideCard from '../components/GuideCard.vue'
+import { get } from '../api.js'
 import { onMounted, ref, watch } from 'vue'
 import type { Guide } from '@utpost/shared'
 
@@ -12,9 +13,8 @@ const filteredGuides = ref<Guide[]>([])
 filteredGuides.value = guides.value
 
 onMounted(() => {
-  fetch('http://localhost:4000/api/guides')
-    .then((response) => response.json())
-    .then((guidesResponse: Guide[]) => (guides.value = guidesResponse))
+  get<Guide[]>('/guides')
+    .then((guidesResponse) => (guides.value = guidesResponse))
     .then(() => (filteredGuides.value = guides.value))
     .catch((e) => {
       console.log('Error', e)

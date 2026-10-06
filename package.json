@@ -16,7 +16,7 @@
     "seed": "npm run seed --workspace=api",
     "pr": "node tools/pr-builder/src/cli.js",
     "pr:test": "node --test tools/pr-builder/test",
-    "typecheck": "npm run typecheck --workspace=client",
+    "typecheck": "npm run typecheck --workspace=client --workspace=api",
     "lint": "npm run lint --workspace=client",
     "format:check": "npm run format:check --workspace=client",
     "test": "npm run test --workspace=client",

@@ -4,6 +4,7 @@ import type { Guide } from "@utpost/shared";
 import { pool } from "../db/client.js";
 
 export const guidesRouter = Router();
+const proof: number = "fjs25 är bäst i chas hehe";
 
 guidesRouter.get("/", async (req, res: Response<Guide[]>) => {
   const result = await pool.query<Guide[]>(

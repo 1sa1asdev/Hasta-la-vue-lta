@@ -1,19 +1,21 @@
-<script setup>
+<script setup lang="ts">
 import GuideCard from '../components/GuideCard.vue'
-import { reactive, onMounted, ref, watch } from 'vue'
+import { get } from '../api.js'
+import { onMounted, ref, watch } from 'vue'
+import type { Guide } from '@utpost/shared'
 
-let guides = reactive([])
+const guides = ref<Guide[]>([])
 const loading = ref(true)
-const error = ref(null)
+const error = ref<unknown>(null)
 const search = ref('')
-let filteredGuides = reactive([])
-filteredGuides = guides
+const filteredGuides = ref<Guide[]>([])
+
+filteredGuides.value = guides.value
 
 onMounted(() => {
-  fetch('http://localhost:4000/api/guides')
-    .then((response) => response.json())
-    .then((guidesResponse) => (guides = guidesResponse))
-    .then(() => (filteredGuides = guides))
+  get<Guide[]>('/guides')
+    .then((guidesResponse) => (guides.value = guidesResponse))
+    .then(() => (filteredGuides.value = guides.value))
     .catch((e) => {
       console.log('Error', e)
       error.value = e
@@ -23,11 +25,11 @@ onMounted(() => {
 
 watch(search, () => {
   if (search.value.trim() === '') {
-    filteredGuides = guides
+    filteredGuides.value = guides.value
     return
   }
 
-  filteredGuides = guides.filter((guide) =>
+  filteredGuides.value = guides.value.filter((guide) =>
     guide.title.toLowerCase().startsWith(search.value.toLowerCase().trim()),
   )
 })

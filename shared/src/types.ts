@@ -46,6 +46,12 @@ export interface TourLog {
   note: string | null
 }
 
+/** GET /api/tours/:id */
+export interface TourDetail extends Tour {
+  logs: TourLog[]
+  photos: Photo[]
+}
+
 export interface Photo {
   id: number
   tour_id: number
@@ -53,4 +59,15 @@ export interface Photo {
   width: number
   height: number
   created_at: string
+}
+
+export type TourWithRelations = Tour & {
+  user: User
+  guide: Guide | null
+  photos: Photo[]
+  logs: TourLog[]
+}
+
+export interface ApiError {
+  error: string
 }

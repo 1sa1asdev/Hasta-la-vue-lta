@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/vue'
+import { render, screen } from '@testing-library/vue'
 import type { Guide, TourWithRelations, User } from '@utpost/shared'
 import ToursView from './ToursView.vue'
 import { silenceConsole, stubFetch, stubFetchNetworkError, stubFetchPending } from '../test/fetch'
@@ -125,14 +125,14 @@ describe('ToursView', () => {
   })
 
   describe('when there are no tours', () => {
-    it('shows the heading but no table, loading text or error', async () => {
+    it('shows a message when the API returns no tours', async () => {
       stubFetch([])
       renderView()
 
-      await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument())
-
+      expect(await screen.findByText('No tours')).toBeInTheDocument()
       expect(screen.getByRole('heading', { name: 'Turer' })).toBeInTheDocument()
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
       expect(screen.queryByText(/Error/)).not.toBeInTheDocument()
     })
   })

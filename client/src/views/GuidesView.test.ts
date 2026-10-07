@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/vue'
+import { render, screen } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
 import type { Guide } from '@utpost/shared'
 import GuidesView from './GuidesView.vue'
@@ -103,15 +103,15 @@ describe('GuidesView', () => {
   })
 
   describe('when there are no guides', () => {
-    it('shows the search box but no cards, counter, loading text or error', async () => {
+    it('shows a message when the API returns no guides', async () => {
       stubFetch([])
       renderView()
 
-      await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument())
-
+      expect(await screen.findByText('No guides')).toBeInTheDocument()
       expect(searchBox()).toBeInTheDocument()
       expect(screen.queryAllByRole('link')).toHaveLength(0)
       expect(screen.queryByText(/\(\d+ \/ \d+\)/)).not.toBeInTheDocument()
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
       expect(screen.queryByText(/Error/)).not.toBeInTheDocument()
     })
   })

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import GuideCard from '../components/GuideCard.vue'
 import { get } from '../api.js'
+import { filterGuidesByTitle } from '../../lib/guides'
 import { onMounted, ref, watch } from 'vue'
 import type { Guide } from '@utpost/shared'
 
@@ -10,12 +11,10 @@ const error = ref<unknown>(null)
 const search = ref('')
 const filteredGuides = ref<Guide[]>([])
 
-filteredGuides.value = guides.value
-
 onMounted(() => {
   get<Guide[]>('/guides')
     .then((guidesResponse) => (guides.value = guidesResponse))
-    .then(() => (filteredGuides.value = guides.value))
+    .then(() => (filteredGuides.value = filterGuidesByTitle(guides.value, search.value)))
     .catch((e) => {
       console.log('Error', e)
       error.value = e
@@ -24,14 +23,7 @@ onMounted(() => {
 })
 
 watch(search, () => {
-  if (search.value.trim() === '') {
-    filteredGuides.value = guides.value
-    return
-  }
-
-  filteredGuides.value = guides.value.filter((guide) =>
-    guide.title.toLowerCase().startsWith(search.value.toLowerCase().trim()),
-  )
+  filteredGuides.value = filterGuidesByTitle(guides.value, search.value)
 })
 </script>
 
@@ -45,6 +37,7 @@ watch(search, () => {
       <GuideCard v-for="guide in filteredGuides" :key="guide.id" :guide="guide" />
     </div>
     <p v-if="loading">Loading...</p>
+    <p v-if="loading === false && error === null && guides.length === 0">No guides</p>
     <p v-if="error !== null">{{ error }}</p>
   </section>
 </template>

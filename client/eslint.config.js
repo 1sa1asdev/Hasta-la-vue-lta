@@ -34,7 +34,7 @@ export default defineConfigWithVueTs([
   ...vueTsConfigs.recommended,
   {
     ...pluginVitest.configs.recommended,
-    files: ['src/**/*.test.js'],
+    files: ['src/**/*.test.{js,ts}'],
   },
 
   skipFormatting,

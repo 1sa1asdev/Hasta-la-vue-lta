@@ -1,19 +1,19 @@
 <script setup>
 import GuideCard from '../components/GuideCard.vue'
+import { filterGuides } from '../utils/filterGuides.js'
 import { reactive, onMounted, ref, watch } from 'vue'
 
 let guides = reactive([])
 const loading = ref(true)
 const error = ref(null)
 const search = ref('')
-let filteredGuides = reactive([])
-filteredGuides = guides
+let filteredGuides = filterGuides(guides, search.value)
 
 onMounted(() => {
   fetch('http://localhost:4000/api/guides')
     .then((response) => response.json())
     .then((guidesResponse) => (guides = guidesResponse))
-    .then(() => (filteredGuides = guides))
+    .then(() => (filteredGuides = filterGuides(guides, search.value)))
     .catch((e) => {
       console.log('Error', e)
       error.value = e
@@ -22,14 +22,7 @@ onMounted(() => {
 })
 
 watch(search, () => {
-  if (search.value.trim() === '') {
-    filteredGuides = guides
-    return
-  }
-
-  filteredGuides = guides.filter((guide) =>
-    guide.title.toLowerCase().startsWith(search.value.toLowerCase().trim()),
-  )
+  filteredGuides = filterGuides(guides, search.value)
 })
 </script>
 

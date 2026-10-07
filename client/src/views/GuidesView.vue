@@ -37,6 +37,7 @@ watch(search, () => {
       <GuideCard v-for="guide in filteredGuides" :key="guide.id" :guide="guide" />
     </div>
     <p v-if="loading">Loading...</p>
+    <p v-if="loading === false && error === null && guides.length === 0">No guides</p>
     <p v-if="error !== null">{{ error }}</p>
   </section>
 </template>

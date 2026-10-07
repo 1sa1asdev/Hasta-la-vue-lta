@@ -48,5 +48,6 @@ onMounted(() => {
   </table>
 
   <p v-if="loading">Loading...</p>
+  <p v-if="loading === false && error === null && rows.length === 0">No tours</p>
   <p v-if="error !== null">{{ error }}</p>
 </template>

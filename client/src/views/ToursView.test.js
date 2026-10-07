@@ -59,6 +59,14 @@ describe('ToursView', () => {
     await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument())
   })
 
+  it('shows a message when the API returns no tours', async () => {
+    stubFetch([])
+    renderView()
+
+    expect(await screen.findByText('No tours')).toBeInTheDocument()
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
+  })
+
   it('shows the error message when the tours cannot be fetched', async () => {
     stubFetch({ error: 'Server error' }, 500)
     renderView()

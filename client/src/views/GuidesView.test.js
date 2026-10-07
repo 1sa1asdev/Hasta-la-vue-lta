@@ -53,6 +53,14 @@ describe('GuidesView', () => {
     expect(screen.getByText('(2 / 2)')).toBeInTheDocument()
   })
 
+  it('shows a message when the API returns no guides', async () => {
+    stubFetch([])
+    renderView()
+
+    expect(await screen.findByText('No guides')).toBeInTheDocument()
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+  })
+
   it('shows the error message when the guides cannot be fetched', async () => {
     stubFetch({ error: 'Server error' }, 500)
     renderView()

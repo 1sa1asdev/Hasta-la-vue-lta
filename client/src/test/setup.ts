@@ -1,8 +1,10 @@
 import '@testing-library/jest-dom/vitest'
-import { afterEach } from 'vitest'
 import { cleanup } from '@testing-library/vue'
+import { afterEach, vi } from 'vitest'
 
-// Without cleanup every rendered component stays in document.body between tests.
+// Vitest runs without globals, so Testing Library cannot clean up on its own.
 afterEach(() => {
   cleanup()
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
 })

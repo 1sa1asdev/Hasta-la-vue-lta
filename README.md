@@ -1,11 +1,10 @@
 # Utpost
 
-be
+A platform for outdoor destinations, featuring editorial guides, user-created tours, and photos.
 
+## Getting Started
 
-Plattform för friluftsdestinationer. Redaktionella guider, användarnas egna turer och bilder.
-
-## Kom igång
+Requires Node.js 22.18 or later.
 
 ```bash
 npm install
@@ -14,35 +13,36 @@ npm run seed
 npm run dev:client
 ```
 
-Appen ligger sen på http://localhost:3001 och API:et pa http://localhost:4000.
+The application is then available at http://localhost:3001 and the API at http://localhost:4000.
 
-## Skapa en pull request
+## Create a Pull Request
 
 ```bash
 npm run pr
 ```
 
-CLI:n läser `.github/pull_request_template.md`, ställer frågor utifrån mallen
-(inklusive checklistan) och skriver ett färdigt PR-body till `.git/PR_BODY.md`.
-Commit-meddelanden och branchnamn används som förslag. Se
-[`tools/pr-builder/README.md`](tools/pr-builder/README.md) för hur den fungerar.
+The CLI reads `.github/pull_request_template.md`, asks questions based on the template (including its checklist), and writes a completed PR body to `.git/PR_BODY.md`.
 
-## Struktur
+Commit messages and branch names are used as suggestions. See [`tools/pr-builder/README.md`](tools/pr-builder/README.md) for details on how it works.
+
+## Structure
 
 - `api/` – Express + Postgres (Drizzle)
 - `web/` – React + Vite
 - `client/` – Vue 3 + Vite
+- `shared/` – Shared TypeScript types for the API and client.
 
-## Deploy
+## Deployment
 
-Fråga Marcus.
+Ask Marcus.
 
-## M1-kommandon
+## Commands
 
-- `npm run dev:client` – startar Vue-klienten på port 3001.
-- `npm run lint` – kör ESLint.
-- `npm run format:check` – kontrollerar Prettier-formattering.
-- `npm test` – kör Vitest en gång och avslutas.
-- `npm run build` – bygger Vue-klienten för produktion.
+- `npm run dev:client` – Starts the Vue client on port 3001.
+- `npm run lint` – Runs ESLint.
+- `npm run format:check` – Checks Prettier formatting.
+- `npm test` – Runs Vitest once and exits.
+- `npm run build` – Builds the Vue client for production.
+- `npm run typecheck` – Checks TypeScript types in the client and API.
 
-Projektet har inget `npm start`-script. Använd `npm run dev:client` för Vue-klienten.
+The project does not have an `npm start` script. Use `npm run dev:client` for the Vue client.

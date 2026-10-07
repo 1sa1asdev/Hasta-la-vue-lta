@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "seed": "node src/db/seed.js"
+    "seed": "node src/db/seed.js",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@utpost/shared": "^0.0.1",
@@ -15,5 +16,8 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.0"
   }
 }

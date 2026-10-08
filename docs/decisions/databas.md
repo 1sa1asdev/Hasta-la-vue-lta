@@ -12,13 +12,20 @@ We inherited tours, measurement points, and photos as three Postgres tables (`to
 
 Elevation gain is calculated in the client every time the tour page opens (`elevationGain` in `client/lib/tours.ts`).
 
-The schema comment says a tour grows by about 300 measurement points. The seed script puts 20–39 points on each of 200 tours. That is a reading of the code, separate from a measurement against a running database.
+Measured on 2026-10-08 against the local database after `npm run seed` (seed data, not real users):
 
-Three numbers still need to be measured and written in here before the document is signed: the size of the `/api/tours` response, the number of rows in `tour_logs`, and the number of points on the largest tour.
+| What | Result |
+| --- | ---: |
+| `/api/tours` response size | 283 894 bytes (about 277 KB) for 50 tours |
+| `/api/tours` response time | 0.10 s, local machine |
+| Rows in `tour_logs` | 5 882 |
+| Points on the largest tour | 39 (tour 149) |
+
+The seed script gives every tour 20–39 points, which matches the largest tour. The schema comment says a tour grows by about 300 points, so real tours may be several times larger than the seed data.
 
 ## Document model for tours
 
-One document per tour. The track is embedded. A measurement point is a few numbers and a timestamp, on the order of 150 bytes in JSON. 300 points is then about 45 KB. At that estimate, the 16 MB document limit sits around 100 000 points per tour. We are far below that, so the track fits in the same document as the tour, and the tour page can read everything in one call.
+One document per tour. The track is embedded. A measurement point is a few numbers and a timestamp, on the order of 150 bytes in JSON. Our largest tour has 39 points, which is about 6 KB. Even at the 300 points the schema comment expects, a track is about 45 KB. At that estimate, the 16 MB document limit sits around 100 000 points per tour. We are far below that, so the track fits in the same document as the tour, and the tour page can read everything in one call.
 
 The list response omits the track. `GET /api/tours` and `GET /api/tours/latest` read the document without the `logs` field. The totals in `stats` remain, so the table can be drawn without recalculating the points.
 

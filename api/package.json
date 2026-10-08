@@ -7,7 +7,11 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "seed": "node src/db/seed.js",
+<<<<<<< HEAD
     "typecheck": "tsc --noEmit"
+=======
+    "mongo:smoke": "node src/db/mongo-smoke.js"
+>>>>>>> 72e9938 (setup mongo)
   },
   "dependencies": {
     "@utpost/shared": "^0.0.1",
@@ -15,6 +19,7 @@
     "drizzle-orm": "^0.36.4",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^7.7.0",
     "pg": "^8.13.1"
   },
   "devDependencies": {

@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: utpost
+      POSTGRES_PASSWORD: utpost
+      POSTGRES_DB: utpost
+    ports:
+      - "5433:5432"
+    volumes:
+      - utpost_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U utpost -d utpost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mongo:
+    image: mongo:8.2
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: utpost
+      MONGO_INITDB_ROOT_PASSWORD: utpost
+    ports:
+      - "27017:27017"
+    volumes:
+      - utpost_mongodata:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--username",
+          "utpost",
+          "--password",
+          "utpost",
+          "--authenticationDatabase",
+          "admin",
+          "--eval",
+          "db.adminCommand('ping')"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      DATABASE_URL: postgres://utpost:utpost@postgres:5432/utpost
+      MONGO_URL: mongodb://utpost:utpost@mongo:27017/utpost?authSource=admin
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+
+volumes:
+  utpost_pgdata:
+  utpost_mongodata:

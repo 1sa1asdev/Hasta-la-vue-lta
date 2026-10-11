@@ -2,7 +2,7 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 COPY api/package.json ./api/
 COPY shared/package.json ./shared/
 
@@ -13,6 +13,6 @@ COPY shared ./shared
 
 WORKDIR /app/api
 
-EXPOSE 3000
+EXPOSE 4000
 
 CMD ["node", "src/index.js"]

@@ -11,5 +11,14 @@ services:
       - "5433:5432"
     volumes:
       - utpost_pgdata:/var/lib/postgresql/data
+  mongo:
+    image: mongo:8.2
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: utpost
+      MONGO_INITDB_ROOT_PASSWORD: utpost
+    ports:
+      - "27017:27017"
+    volumes:
+      - utpost_mongodata:/data/db
 volumes:
   utpost_pgdata:

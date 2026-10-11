@@ -1,0 +1,3 @@
+DATABASE_URL = "postgresUrl"
+MONGO_URL = "mongoUrl"
+JWT_SECRET = 'secret'

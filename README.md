@@ -4,14 +4,26 @@ A platform for outdoor destinations, featuring editorial guides, user-created to
 
 ## Getting Started
 
-Requires Node.js 22.18 or later.
+Requires Node.js 22.18.0 or later.
+
+Run following commands to start whole application in Docker.
 
 ```bash
 npm install
-docker compose -f docker-compose.dev.yml up -d
-npm run seed
-npm run dev:client
+
+docker compose -f compose.yaml up -d
+docker compose exec api npm run seed
 ```
+
+To run databases in Docker but application locally:
+
+```bash
+docker compose up -d postgres mongo
+
+npm run seed
+npm run dev
+```
+
 
 The application is then available at http://localhost:3001 and the API at http://localhost:4000.
 
@@ -45,4 +57,3 @@ Ask Marcus.
 - `npm run build` – Builds the Vue client for production.
 - `npm run typecheck` – Checks TypeScript types in the client and API.
 
-The project does not have an `npm start` script. Use `npm run dev:client` for the Vue client.

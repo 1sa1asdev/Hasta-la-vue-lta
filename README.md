@@ -20,11 +20,11 @@ To run databases in Docker but application locally:
 ```bash
 docker compose up -d postgres mongo
 
+cp environment.example .env
 npm run seed
 npm run dev
 ```
-PostgresDB is exposed at port :5433 and MongoDB at :27017.
-You will have to create .env file by template at environment.example and provide valid DB links. 
+Postgres is on port 5433 and MongoDB on port 27017. Those addresses are already in `environment.example`. 
 
 The application is then available at http://localhost:3001 and the API at http://localhost:4000.
 

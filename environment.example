@@ -1,3 +1,3 @@
-DATABASE_URL = "postgresUrl"
-MONGO_URL = "mongoUrl"
+DATABASE_URL=postgresql://postgres:postgres@localhost:5433/your_db_name
+MONGO_URL=mongodb://localhost:27017/your_mongo_db
 JWT_SECRET = 'secret'

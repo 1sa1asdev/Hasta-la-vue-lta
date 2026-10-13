@@ -23,7 +23,8 @@ docker compose up -d postgres mongo
 npm run seed
 npm run dev
 ```
-
+PostgresDB is exposed at port :5433 and MongoDB at :27017.
+You will have to create .env file by template at environment.example and provide valid DB links. 
 
 The application is then available at http://localhost:3001 and the API at http://localhost:4000.
 

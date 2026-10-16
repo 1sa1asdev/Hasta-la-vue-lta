@@ -7,11 +7,14 @@ import { toursRouter } from './routes/tours.js';
 import { photosRouter } from './routes/photos.js';
 import { pool } from './db/client.js';
 import { mongo } from './db/mongo.js';
+import { yoga } from './graphql/server.js'; //add Graphql yoga server
 
 const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
+// GraphQL endpoint
+app.use(yoga.graphqlEndpoint, yoga);
 app.get('/api/health', async (req, res) => {
   const check = async (fn) => {
     try {

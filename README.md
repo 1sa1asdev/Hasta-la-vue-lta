@@ -23,8 +23,9 @@ docker compose up -d postgres mongo
 npm run seed
 npm run dev
 ```
+
 PostgresDB is exposed at port :5433 and MongoDB at :27017.
-You will have to create .env file by template at environment.example and provide valid DB links. 
+You will have to create .env file by template at environment.example and provide valid DB links.
 
 The application is then available at http://localhost:3001 and the API at http://localhost:4000.
 
@@ -58,3 +59,14 @@ Ask Marcus.
 - `npm run build` – Builds the Vue client for production.
 - `npm run typecheck` – Checks TypeScript types in the client and API.
 
+## Frontend image
+
+The frontend is built with a multi-stage Dockerfile (`client/Dockerfile`):
+Node 22 Alpine builds the assets, and Nginx 1.27 Alpine serves them.
+Nginx also proxies `/api/` and `/graphql` to the `api` service.
+
+| Image                   | Size  |
+| ----------------------- | ----- |
+| hasta-la-vue-lta-client | 73.8 MB |
+
+Measured with `docker images` on 2026-10-19.

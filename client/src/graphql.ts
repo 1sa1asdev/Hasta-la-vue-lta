@@ -1,7 +1,7 @@
 // Reusable fetch helper for the GraphQL API.
 // Posts one query and returns the data. Callers catch the thrown errors.
 
-export const GRAPHQL_URL = 'http://localhost:4000/graphql'
+export const GRAPHQL_URL = '/graphql'
 
 interface GraphQLErrorBody {
   message: string

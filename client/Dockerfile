@@ -1,8 +1,9 @@
-FROM node:22-alpine
+# ---------- Build stage ----------
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 COPY client/package.json ./client/
 COPY shared/package.json ./shared/
 
@@ -12,9 +13,12 @@ COPY client ./client
 COPY shared ./shared
 
 WORKDIR /app/client
-
 RUN npm run build
 
-EXPOSE 3001
+# ---------- Runtime stage ----------
+FROM nginx:1.27-alpine
 
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "3001"]
+COPY client/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/client/dist /usr/share/nginx/html
+
+EXPOSE 80

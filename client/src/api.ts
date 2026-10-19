@@ -1,4 +1,4 @@
-export const API_URL = 'http://localhost:4000/api'
+export const API_URL = '/api'
 
 // Generisk: anroparen säger vilken typ svaret har – `get<Guide[]>('/guides')`.
 // Typen kommer från @utpost/shared, samma fil som API:et använder.

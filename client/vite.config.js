@@ -5,13 +5,17 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-  ],
+  plugins: [vue()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@utpost/shared': fileURLToPath(new URL('../shared/src/types.ts', import.meta.url)),
+    },
+  },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:4000',
+      '/graphql': 'http://localhost:4000',
     },
   },
 })

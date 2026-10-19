@@ -4,20 +4,46 @@ A platform for outdoor destinations, featuring editorial guides, user-created to
 
 ## Getting Started
 
-Requires Node.js 22.18.0 or later.
+### Run everything in Docker
 
-Run following commands to start whole application in Docker.
+Requires Docker with Docker Compose. Works from a clean clone; no `npm install` or `.env` needed.
 
 ```bash
-npm install
-
-docker compose -f compose.yaml up -d
+docker compose up -d --build
 docker compose exec api npm run seed
 ```
 
-To run databases in Docker but application locally:
+Compose starts four services: `postgres`, `mongo`, `api` and `client`. The seed script creates the tables and fills Postgres with test data.
+
+The application is available at <http://localhost:3001>. The API does not publish a host port; Nginx in the `client` container proxies `/api/` and `/graphql` to it.
+
+Verify that it works:
 
 ```bash
+docker compose ps                              # all four services Up, postgres and mongo healthy
+curl http://localhost:3001/api/health          # {"ok":true,...,"postgres":"ok","mongodb":"ok"}
+curl -X POST http://localhost:3001/graphql -H "Content-Type: application/json" -d '{"query":"{ __typename }"}'
+                                               # {"data":{"__typename":"Query"}}
+```
+
+Log in with any seeded user and the password `hemligt123`. The emails are random on each seed, so list them with:
+
+```bash
+docker compose exec postgres psql -U utpost -tAc "select email from users limit 5"
+```
+
+To start over with empty databases:
+
+```bash
+docker compose down -v
+```
+
+### Run databases in Docker, application locally
+
+Requires Node.js 22.18.0 or later.
+
+```bash
+npm install
 docker compose up -d postgres mongo
 
 npm run seed
@@ -27,7 +53,7 @@ npm run dev
 PostgresDB is exposed at port :5433 and MongoDB at :27017.
 You will have to create .env file by template at environment.example and provide valid DB links.
 
-The application is then available at http://localhost:3001 and the API at http://localhost:4000.
+The application is then available at <http://localhost:3001> and the API at <http://localhost:4000>. The Vite dev server proxies `/api` and `/graphql` to the API.
 
 ## Create a Pull Request
 

@@ -50,6 +50,22 @@ const photo = (id: number) => ({
   created_at: '2026-06-01T09:00:00.000Z',
 })
 
+const stubTours = (items: TourWithRelations[]) =>
+  stubFetch({
+    data: {
+      tours: items.map((tour) => ({
+        id: String(tour.id),
+        title: tour.title,
+        distanceM: tour.distance_m,
+        photoCount: tour.photos.length,
+        user: {
+          displayName: tour.user.display_name,
+        },
+        guide: tour.guide ? { title: tour.guide.title } : null,
+      })),
+    },
+  })
+
 const renderView = () =>
   render(ToursView, {
     global: {
@@ -60,7 +76,7 @@ const renderView = () =>
 describe('ToursView', () => {
   describe('when data arrives', () => {
     it('shows a table row per tour', async () => {
-      stubFetch([makeTour(), makeTour({ id: 8, title: 'Kvällsturen' })])
+      stubTours([makeTour(), makeTour({ id: 8, title: 'Kvällsturen' })])
       renderView()
 
       expect(await screen.findByRole('table')).toBeInTheDocument()
@@ -69,7 +85,7 @@ describe('ToursView', () => {
     })
 
     it('links each tour title to its detail page', async () => {
-      stubFetch([makeTour()])
+      stubTours([makeTour()])
       renderView()
 
       const link = await screen.findByRole('link', { name: 'Toppturen' })
@@ -77,7 +93,7 @@ describe('ToursView', () => {
     })
 
     it('shows who did the tour and which guide it followed', async () => {
-      stubFetch([makeTour()])
+      stubTours([makeTour()])
       renderView()
 
       expect(await screen.findByRole('cell', { name: 'Anna' })).toBeInTheDocument()
@@ -85,28 +101,28 @@ describe('ToursView', () => {
     })
 
     it('shows a dash when the tour has no guide', async () => {
-      stubFetch([makeTour({ guide: null, guide_id: null })])
+      stubTours([makeTour({ guide: null, guide_id: null })])
       renderView()
 
       expect(await screen.findByRole('cell', { name: '-' })).toBeInTheDocument()
     })
 
     it('shows the distance in km rounded to one decimal', async () => {
-      stubFetch([makeTour({ distance_m: 12345 })])
+      stubTours([makeTour({ distance_m: 12345 })])
       renderView()
 
       expect(await screen.findByRole('cell', { name: '12.3 km' })).toBeInTheDocument()
     })
 
     it('shows the number of photos', async () => {
-      stubFetch([makeTour({ photos: [photo(1), photo(2), photo(3)] })])
+      stubTours([makeTour({ photos: [photo(1), photo(2), photo(3)] })])
       renderView()
 
       expect(await screen.findByRole('cell', { name: '3' })).toBeInTheDocument()
     })
 
     it('hides the loading text once the tours are shown', async () => {
-      stubFetch([makeTour()])
+      stubTours([makeTour()])
       renderView()
 
       await screen.findByRole('table')
@@ -126,7 +142,7 @@ describe('ToursView', () => {
 
   describe('when there are no tours', () => {
     it('shows a message when the API returns no tours', async () => {
-      stubFetch([])
+      stubTours([])
       renderView()
 
       expect(await screen.findByText('No tours')).toBeInTheDocument()
@@ -155,6 +171,16 @@ describe('ToursView', () => {
 
       expect(await screen.findByText('TypeError: Failed to fetch')).toBeInTheDocument()
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
+    })
+
+    it('shows the GraphQL error when the response contains errors', async () => {
+      silenceConsole()
+      stubFetch({ data: null, errors: [{ message: 'Tours are unavailable' }] })
+      renderView()
+
+      expect(await screen.findByText('Error: Tours are unavailable')).toBeInTheDocument()
+      expect(screen.queryByRole('table')).not.toBeInTheDocument()
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })
   })
 })

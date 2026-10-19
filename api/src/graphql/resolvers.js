@@ -79,6 +79,14 @@ export const resolvers = {
       );
       return result.rows[0] ?? null;
     },
+
+    photoCount: async (tour) => {
+      const result = await pool.query(
+        'SELECT COUNT(*)::int AS count FROM photos WHERE tour_id = $1',
+        [tour.id],
+      );
+      return Number(result.rows[0]?.count ?? 0);
+    },
   },
 
   Mutation: {

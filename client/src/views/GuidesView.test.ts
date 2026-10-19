@@ -40,6 +40,24 @@ const guides = [
   }),
 ]
 
+const stubGuides = (items: Guide[]) =>
+  stubFetch({
+    data: {
+      guides: items.map((guide) => ({
+        id: String(guide.id),
+        slug: guide.slug,
+        title: guide.title,
+        region: guide.region,
+        difficulty: guide.difficulty,
+        lengthKm: guide.length_km,
+        bodyHtml: guide.body_html,
+        heroImage: guide.hero_image,
+        published: guide.published,
+        updatedAt: guide.updated_at,
+      })),
+    },
+  })
+
 const renderView = () =>
   render(GuidesView, {
     global: {
@@ -54,7 +72,7 @@ const visibleTitles = () => screen.queryAllByRole('link').map((link) => link.tex
 describe('GuidesView', () => {
   describe('when data arrives', () => {
     it('shows a card per guide, linking to the guide page', async () => {
-      stubFetch(guides)
+      stubGuides(guides)
       renderView()
 
       const link = await screen.findByRole('link', { name: 'Kebnekaise' })
@@ -63,28 +81,28 @@ describe('GuidesView', () => {
     })
 
     it('shows region, difficulty and length on each card', async () => {
-      stubFetch([makeGuide()])
+      stubGuides([makeGuide()])
       renderView()
 
       expect(await screen.findByText('Lappland · medel · 12 km')).toBeInTheDocument()
     })
 
     it('shows the start of the guide text', async () => {
-      stubFetch([makeGuide()])
+      stubGuides([makeGuide()])
       renderView()
 
       expect(await screen.findByText('Sveriges tak')).toBeInTheDocument()
     })
 
     it('shows how many guides are visible out of the total', async () => {
-      stubFetch(guides)
+      stubGuides(guides)
       renderView()
 
       expect(await screen.findByText('(3 / 3)')).toBeInTheDocument()
     })
 
     it('hides the loading text once the guides are shown', async () => {
-      stubFetch(guides)
+      stubGuides(guides)
       renderView()
 
       await screen.findByRole('link', { name: 'Kebnekaise' })
@@ -104,7 +122,7 @@ describe('GuidesView', () => {
 
   describe('when there are no guides', () => {
     it('shows a message when the API returns no guides', async () => {
-      stubFetch([])
+      stubGuides([])
       renderView()
 
       expect(await screen.findByText('No guides')).toBeInTheDocument()
@@ -135,11 +153,21 @@ describe('GuidesView', () => {
       expect(await screen.findByText('TypeError: Failed to fetch')).toBeInTheDocument()
       expect(screen.queryAllByRole('link')).toHaveLength(0)
     })
+
+    it('shows the GraphQL error when the response contains errors', async () => {
+      silenceConsole()
+      stubFetch({ data: null, errors: [{ message: 'Guides are unavailable' }] })
+      renderView()
+
+      expect(await screen.findByText('Error: Guides are unavailable')).toBeInTheDocument()
+      expect(screen.queryAllByRole('link')).toHaveLength(0)
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
+    })
   })
 
   describe('when the user searches', () => {
     it('only shows guides whose name starts with the search text', async () => {
-      stubFetch(guides)
+      stubGuides(guides)
       renderView()
       await screen.findByRole('link', { name: 'Kebnekaise' })
 
@@ -150,7 +178,7 @@ describe('GuidesView', () => {
     })
 
     it('ignores upper and lower case', async () => {
-      stubFetch(guides)
+      stubGuides(guides)
       renderView()
       await screen.findByRole('link', { name: 'Kebnekaise' })
 
@@ -160,7 +188,7 @@ describe('GuidesView', () => {
     })
 
     it('ignores spaces around the search text', async () => {
-      stubFetch(guides)
+      stubGuides(guides)
       renderView()
       await screen.findByRole('link', { name: 'Kebnekaise' })
 
@@ -170,7 +198,7 @@ describe('GuidesView', () => {
     })
 
     it('does not match text in the middle of a name', async () => {
-      stubFetch(guides)
+      stubGuides(guides)
       renderView()
       await screen.findByRole('link', { name: 'Kebnekaise' })
 
@@ -180,7 +208,7 @@ describe('GuidesView', () => {
     })
 
     it('shows no cards and no counter when nothing matches', async () => {
-      stubFetch(guides)
+      stubGuides(guides)
       renderView()
       await screen.findByRole('link', { name: 'Kebnekaise' })
 
@@ -191,7 +219,7 @@ describe('GuidesView', () => {
     })
 
     it('shows all guides again when the search is cleared', async () => {
-      stubFetch(guides)
+      stubGuides(guides)
       renderView()
       await screen.findByRole('link', { name: 'Kebnekaise' })
 

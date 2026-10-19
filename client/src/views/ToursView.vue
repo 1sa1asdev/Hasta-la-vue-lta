@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { get } from '../api.js'
+import { fetchTours } from '../queries'
 import { toTourRow } from '../../lib/tours'
+import type { TourListItem } from '../../lib/tours'
 import { computed, onMounted, ref } from 'vue'
-import type { TourWithRelations } from '@utpost/shared'
 
-const tours = ref<TourWithRelations[]>([])
+const tours = ref<TourListItem[]>([])
 const loading = ref(true)
 const error = ref<unknown>(null)
 const rows = computed(() => tours.value.map(toTourRow))
 
 onMounted(() => {
-  get<TourWithRelations[]>('/tours')
+  fetchTours()
     .then((toursResponse) => {
       tours.value = toursResponse
     })

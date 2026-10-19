@@ -70,4 +70,9 @@ describe('toTourRow', () => {
     expect(row.distanceKm).toBe(18.5)
     expect(row.photoCount).toBe(2)
   })
+
+  it('uses photoCount when the list does not include photo rows', () => {
+    const row = toTourRow({ ...tour(), photos: undefined, photoCount: 4 })
+    expect(row.photoCount).toBe(4)
+  })
 })

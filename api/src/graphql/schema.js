@@ -26,6 +26,7 @@ export const typeDefs = /* GraphQL */ `
     startedAt: String!
     distanceM: Int!
     notes: String
+    photoCount: Int!
     user: User!
     guide: Guide
   }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import GuideCard from '../components/GuideCard.vue'
-import { get } from '../api.js'
+import { fetchGuides } from '../queries'
 import { filterGuidesByTitle } from '../../lib/guides'
 import { onMounted, ref, watch } from 'vue'
 import type { Guide } from '@utpost/shared'
@@ -12,7 +12,7 @@ const search = ref('')
 const filteredGuides = ref<Guide[]>([])
 
 onMounted(() => {
-  get<Guide[]>('/guides')
+  fetchGuides()
     .then((guidesResponse) => (guides.value = guidesResponse))
     .then(() => (filteredGuides.value = filterGuidesByTitle(guides.value, search.value)))
     .catch((e) => {

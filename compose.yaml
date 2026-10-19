@@ -49,8 +49,9 @@ services:
     environment:
       DATABASE_URL: postgres://utpost:utpost@postgres:5432/utpost
       MONGO_URL: mongodb://utpost:utpost@mongo:27017/utpost?authSource=admin
-    ports:
-      - "4000:4000"
+      JWT_SECRET: secret
+    expose:
+      - "4000"
     depends_on:
       postgres:
         condition: service_healthy

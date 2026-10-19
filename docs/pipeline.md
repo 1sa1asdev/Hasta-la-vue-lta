@@ -37,3 +37,17 @@ Tider från den gröna GitHub Actions-körningen där Bygg-jobbet tog totalt 25 
 | Bygg totalt | 25 s |
 
 Det längsta enskilda steget var `npm ci` i Bygg-jobbet med 10 sekunder.
+
+## Docker images och publicering
+
+Image-jobbet körs efter att både Kvalitet- och Bygg-jobben har lyckats. Det bygger Docker-images för API:t (`api/Dockerfile`) och klienten (`client/Dockerfile`).
+
+- **Pull request:** Båda images byggs för att verifiera att Docker-byggena fungerar. De publiceras inte till GitHub Container Registry (GHCR).
+- **Push till `main`:** Båda images publiceras till GHCR.
+- **Taggar:** Images taggas med `sha-` följt av en kort commit-SHA, till exempel `sha-a1b2c3d`.
+- **Behörigheter:** Endast Image-jobbet får `packages: write`, vilket begränsar publiceringsbehörigheten till det jobb som behöver den.
+
+Images publiceras som:
+
+- `ghcr.io/1sa1asdev/hasta-la-vue-lta-api`
+- `ghcr.io/1sa1asdev/hasta-la-vue-lta-client`

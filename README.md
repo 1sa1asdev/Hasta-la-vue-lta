@@ -96,3 +96,27 @@ Nginx also proxies `/api/` and `/graphql` to the `api` service.
 | hasta-la-vue-lta-client | 73.8 MB |
 
 Measured with `docker images` on 2026-10-19.
+
+## M5 — GraphQL N+1 Query Measurement
+
+### Before DataLoader
+
+**Test query:** Fetch the 50 most recent tours, including each tour's `user`, `guide`, and `photoCount`.
+
+**Dataset:** 50 tours, of which 38 have an associated guide.
+
+| SQL operation | Number of queries |
+|---|---:|
+| Fetch tours | 1 |
+| Fetch users | 50 |
+| Fetch guides | 38 |
+| Count photos | 50 |
+| **Total** | **139** |
+
+The baseline is **139 SQL queries for one GraphQL request** returning 50 tours. This demonstrates the N+1 query problem: the `user`, `guide`, and `photoCount` resolvers execute additional database queries for individual tours.
+
+SQL statement logging was temporarily enabled to inspect the queries and was disabled after the measurement.
+
+### After DataLoader
+
+_To be measured after implementing DataLoader, using the same GraphQL query and dataset._

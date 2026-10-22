@@ -101,22 +101,108 @@ Measured with `docker images` on 2026-10-19.
 
 ### Before DataLoader
 
-**Test query:** Fetch the 50 most recent tours, including each tour's `user`, `guide`, and `photoCount`.
+#### Test query
 
-**Dataset:** 50 tours, of which 38 have an associated guide.
+The baseline query fetches the 50 most recent tours, including each tour's `user`, `guide`, and `photoCount` fields.
 
-| SQL operation | Number of queries |
+Use this GraphQL query:
+
+```graphql
+query Tours($limit: Int) {
+  tours(limit: $limit) {
+    id
+    title
+    user {
+      id
+      displayName
+    }
+    guide {
+      id
+      title
+    }
+    photoCount
+  }
+}
+```
+
+Use the variable:
+
+```json
+{
+  "limit": 50
+}
+```
+
+#### Dataset and conditions
+
+- Start the application and PostgreSQL using Docker Compose.
+- Seed the database using `docker compose exec api npm run seed` when running the application in Docker.
+- For local application development, run `npm run seed` with the required environment variables loaded.
+- The recorded dataset contains 50 tours in the query result, of which 38 have a non-null `guide_id`.
+- Use the same seeded dataset and query when comparing the baseline with the DataLoader implementation.
+- This baseline represents the implementation before DataLoader is introduced.
+
+#### Enable PostgreSQL statement logging
+
+Temporarily enable statement logging to inspect the SQL queries:
+
+```bash
+docker compose exec postgres psql -U utpost -d utpost \
+  -c "ALTER SYSTEM SET log_statement = 'all';"
+
+docker compose exec postgres psql -U utpost -d utpost \
+  -c "SELECT pg_reload_conf();"
+```
+
+#### Execute the query
+
+Run the GraphQL query and save the response:
+
+```bash
+curl -s http://localhost:3001/graphql \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"query Tours($limit: Int) { tours(limit: $limit) { id title user { id displayName } guide { id title } photoCount } }","variables":{"limit":50}}' \
+  -o /tmp/graphql-baseline.json
+```
+
+Verify that the request succeeded and returned 50 tours:
+
+```bash
+node -e "const r=require('/tmp/graphql-baseline.json'); if(r.errors) { console.error(r.errors); process.exit(1); } console.log('Tours returned:', r.data.tours.length)"
+```
+
+#### Expected SQL query count
+
+Based on the current resolver implementation, the expected query count is:
+
+| SQL operation | Expected queries |
 |---|---:|
 | Fetch tours | 1 |
-| Fetch users | 50 |
-| Fetch guides | 38 |
-| Count photos | 50 |
-| **Total** | **139** |
+| Fetch each tour's user | 50 |
+| Fetch guides for tours with a guide | 38 |
+| Count photos for each tour | 50 |
+| **Expected total** | **139** |
 
-The baseline is **139 SQL queries for one GraphQL request** returning 50 tours. This demonstrates the N+1 query problem: the `user`, `guide`, and `photoCount` resolvers execute additional database queries for individual tours.
+Calculation: `1 + 50 + 38 + 50 = 139`.
 
-SQL statement logging was temporarily enabled to inspect the queries and was disabled after the measurement.
+The expected baseline is 139 SQL queries for one GraphQL request returning 50 tours. The repeated per-tour lookups for users, guides, and photo counts demonstrate the N+1 query problem.
+
+This total is calculated from the current resolver implementation and the recorded guide count. It should not be treated as a directly observed log count until the SQL statements associated with this specific GraphQL request have been isolated and counted.
+
+#### Disable PostgreSQL statement logging
+
+After collecting the logs, restore the default setting:
+
+```bash
+docker compose exec postgres psql -U utpost -d utpost \
+  -c "ALTER SYSTEM RESET log_statement;"
+
+docker compose exec postgres psql -U utpost -d utpost \
+  -c "SELECT pg_reload_conf();"
+```
 
 ### After DataLoader
 
-_To be measured after implementing DataLoader, using the same GraphQL query and dataset._
+After implementing DataLoader, repeat the same GraphQL query against the same seeded dataset. Record the observed SQL query count and compare it with the pre-DataLoader baseline.
+
+_To be completed after implementing DataLoader._

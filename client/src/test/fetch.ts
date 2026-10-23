@@ -2,11 +2,12 @@ import { vi } from 'vitest'
 
 // API:et svarar med `body` och given status.
 export const stubFetch = (body: unknown, status = 200) => {
-  const fetchMock = vi.fn().mockResolvedValue({
-    ok: status >= 200 && status < 300,
-    status,
-    json: () => Promise.resolve(body),
-  })
+  const fetchMock = vi.fn().mockResolvedValue(
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { 'Content-Type': 'application/json' },
+    }),
+  )
   vi.stubGlobal('fetch', fetchMock)
   return fetchMock
 }
@@ -20,7 +21,7 @@ export const stubFetchNetworkError = (message = 'Failed to fetch') => {
 
 // Svaret kommer aldrig – för att se laddningsläget.
 export const stubFetchPending = () => {
-  const fetchMock = vi.fn().mockReturnValue(new Promise(() => {}))
+  const fetchMock = vi.fn().mockReturnValue(new Promise<Response>(() => {}))
   vi.stubGlobal('fetch', fetchMock)
   return fetchMock
 }

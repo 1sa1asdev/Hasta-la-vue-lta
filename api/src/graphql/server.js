@@ -25,6 +25,23 @@ const createRequestDb = () => {
   };
 };
 
+const useDatabaseQueryCount = {
+  onExecute() {
+    return {
+      onExecuteDone({ args, result, setResult }) {
+        const count = args.contextValue.db.count;
+        setResult({
+          ...result,
+          extensions: {
+            ...(result.extensions ?? {}),
+            databasfragor: count,
+          },
+        });
+      },
+    };
+  },
+};
+
 const userFromRequest = (request) => {
   const authorization = request.headers.get('authorization') ?? '';
   const match = authorization.match(/^Bearer\s+(.+)$/i);
@@ -40,6 +57,7 @@ const userFromRequest = (request) => {
 
 export const yoga = createYoga({
   schema,
+  plugins: [useDatabaseQueryCount],
   graphqlEndpoint: '/graphql',
   graphiql: true,
 

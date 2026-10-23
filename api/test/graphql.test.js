@@ -235,3 +235,36 @@ test('counts photos for a tour from the batched photos loader', async () => {
   assert.deepEqual(result.errors, undefined);
   assert.equal(result.data.tour.photoCount, 3);
 });
+
+test('reports the database query count for each request', async () => {
+  const secondTour = { ...tour, id: 8, guide_id: null };
+  let calls = 0;
+  pool.query = async (sql) => {
+    calls += 1;
+    if (sql.includes('FROM tours ORDER BY started_at')) return { rows: [tour, secondTour] };
+    if (sql.includes('FROM users WHERE id')) return { rows: [user] };
+    if (sql.includes('FROM guides WHERE id')) return { rows: [guide] };
+    if (sql.includes('FROM photos')) return { rows: [{ id: 1, tour_id: tour.id }] };
+    throw new Error(`Unexpected query: ${sql}`);
+  };
+
+  const query = `
+    query {
+      tours(limit: 2) {
+        id
+        user { displayName }
+        guide { title }
+        photoCount
+      }
+    }
+  `;
+
+  const result = await json(await request(query));
+  assert.equal(result.errors, undefined);
+  assert.equal(result.extensions.databasfragor, 4);
+  assert.equal(calls, 4);
+
+  const again = await json(await request(query));
+  assert.equal(again.extensions.databasfragor, 4);
+  assert.equal(calls, 8);
+});

@@ -1,5 +1,4 @@
 import { GraphQLError } from 'graphql';
-import { pool } from '../db/client.js';
 
 const unauthenticatedError = () =>
   new GraphQLError('Authentication required', {
@@ -8,36 +7,36 @@ const unauthenticatedError = () =>
 
 export const resolvers = {
   Query: {
-    guides: async () => {
-      const result = await pool.query(
+    guides: async (_parent, _args, context) => {
+      const result = await context.db.query(
         'SELECT * FROM guides ORDER BY id',
       );
       return result.rows;
     },
 
-    guide: async (_, { slug }) => {
-      const result = await pool.query(
+    guide: async (_parent, { slug }, context) => {
+      const result = await context.db.query(
         'SELECT * FROM guides WHERE slug = $1 LIMIT 1',
         [slug],
       );
       return result.rows[0] ?? null;
     },
 
-    tours: async (_, { limit }) => {
+    tours: async (_parent, { limit }, context) => {
       const safeLimit = Math.min(
         Math.max(Number.isInteger(limit) ? limit : 50, 0),
         200,
       );
 
-      const result = await pool.query(
+      const result = await context.db.query(
         'SELECT * FROM tours ORDER BY started_at DESC LIMIT $1',
         [safeLimit],
       );
       return result.rows;
     },
 
-    tour: async (_, { id }) => {
-      const result = await pool.query(
+    tour: async (_parent, { id }, context) => {
+      const result = await context.db.query(
         'SELECT * FROM tours WHERE id = $1 LIMIT 1',
         [id],
       );
@@ -80,7 +79,7 @@ export const resolvers = {
         throw unauthenticatedError();
       }
 
-      const result = await pool.query(
+      const result = await context.db.query(
         `INSERT INTO tours
           (user_id, guide_id, title, started_at, distance_m, notes)
          VALUES ($1, $2, $3, $4, $5, $6)

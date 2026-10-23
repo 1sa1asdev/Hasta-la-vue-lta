@@ -207,12 +207,19 @@ test('returns partial data when a nested non-null field fails', async () => {
   assert.equal(result.errors[0].path.join('.'), 'tour.user');
 });
 
-test('counts photos for a tour without loading photo rows', async () => {
+test('counts photos for a tour from the batched photos loader', async () => {
   pool.query = async (sql, params) => {
     if (sql.includes('FROM tours WHERE id')) return { rows: [tour] };
     if (sql.includes('FROM photos')) {
-      assert.deepEqual(params, [tour.id]);
-      return { rows: [{ count: 3 }] };
+      assert.match(sql, /tour_id = ANY/);
+      assert.deepEqual(params, [[tour.id]]);
+      return {
+        rows: [
+          { id: 1, tour_id: tour.id },
+          { id: 2, tour_id: tour.id },
+          { id: 3, tour_id: tour.id },
+        ],
+      };
     }
     throw new Error(`Unexpected query: ${sql}`);
   };

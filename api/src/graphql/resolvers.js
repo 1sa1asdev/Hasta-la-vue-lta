@@ -61,31 +61,16 @@ export const resolvers = {
     startedAt: (tour) => tour.started_at,
     distanceM: (tour) => tour.distance_m,
 
-    user: async (tour) => {
-      const result = await pool.query(
-        `SELECT id, display_name, role, created_at
-         FROM users WHERE id = $1 LIMIT 1`,
-        [tour.user_id],
-      );
-      return result.rows[0] ?? null;
-    },
+    user: (tour, _args, context) => context.loaders.user.load(tour.user_id),
 
-    guide: async (tour) => {
+    guide: (tour, _args, context) => {
       if (tour.guide_id == null) return null;
-
-      const result = await pool.query(
-        'SELECT * FROM guides WHERE id = $1 LIMIT 1',
-        [tour.guide_id],
-      );
-      return result.rows[0] ?? null;
+      return context.loaders.guide.load(tour.guide_id);
     },
 
-    photoCount: async (tour) => {
-      const result = await pool.query(
-        'SELECT COUNT(*)::int AS count FROM photos WHERE tour_id = $1',
-        [tour.id],
-      );
-      return Number(result.rows[0]?.count ?? 0);
+    photoCount: async (tour, _args, context) => {
+      const photos = await context.loaders.photos.load(tour.id);
+      return photos.length;
     },
   },
 

@@ -20,6 +20,24 @@ export const typeDefs = /* GraphQL */ `
     createdAt: String!
   }
 
+  type Photo {
+    id: ID!
+    filename: String!
+    width: Int!
+    height: Int!
+    createdAt: String!
+  }
+
+  type TourLog {
+    id: ID!
+    recordedAt: String!
+    lat: Float!
+    lon: Float!
+    elevationM: Int
+    heartRate: Int
+    note: String
+  }
+
   type Tour {
     id: ID!
     title: String!
@@ -29,6 +47,8 @@ export const typeDefs = /* GraphQL */ `
     photoCount: Int!
     user: User!
     guide: Guide
+    photos: [Photo!]!
+    logs: [TourLog!]!
   }
 
   input CreateTourInput {

@@ -238,6 +238,16 @@ docker compose exec postgres psql -U utpost -d utpost \
 
 ### After DataLoader
 
-After implementing DataLoader, repeat the same GraphQL query against the same seeded dataset. Record the observed SQL query count and compare it with the pre-DataLoader baseline.
+The same `Tours(limit: 50)` query was run again after seeding with `docker compose exec api npm run seed`. The response returned 50 tours. `extensions.databasfragor` was **4**.
 
-_To be completed after implementing DataLoader._
+| SQL operation | Observed queries |
+|---|---:|
+| Fetch tours | 1 |
+| Fetch the tours' users | 1 |
+| Fetch guides for tours with a guide | 1 |
+| Fetch photos for the photo counts | 1 |
+| **Observed total** | **4** |
+
+Calculation: `1 + 1 + 1 + 1 = 4`.
+
+The user, guide, and photo lookups are each one `WHERE ... = ANY(...)` query for the whole list. The baseline for this query was **138** SQL queries. DataLoader reduced that to **4**.

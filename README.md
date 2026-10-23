@@ -248,6 +248,34 @@ docker compose exec postgres psql -U utpost -d utpost \
   -c "SELECT pg_reload_conf();"
 ```
 
+
+
+Output of type check if you try to remove any field 
+"
+> client@0.0.0 codegen
+> graphql-codegen --config codegen.ts
+
+✔ Parse Configuration
+⚠ Generate outputs
+  ❯ Generate to ./src/gql/
+    ✔ Load GraphQL schemas
+    ✔ Load GraphQL documents
+    ✖ GraphQL Document Validation failed with 2 errors;
+        Error 0: Cannot query field "distanceM" on type "Tour".
+          at /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client/src/queries.ts:6:7
+
+      Error 1: Cannot query field "distanceM" on type "Tour".
+          at /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client/src/views/HomeView.vue:13:7
+  ✖ One or more errors occurred, no files were generated. To allow output on errors, set config.allowPartialOutputs=true
+npm error Lifecycle script `codegen` failed with error:
+npm error code 1
+npm error path /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client
+npm error workspace client@0.0.0
+npm error location /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client
+npm error command failed
+npm error command sh -c graphql-codegen --config codegen.ts"
+
+
 ### After DataLoader
 
 After implementing DataLoader, repeat the same GraphQL query against the same seeded dataset. Record the observed SQL query count and compare it with the pre-DataLoader baseline.

@@ -236,6 +236,108 @@ test('counts photos for a tour from the batched photos loader', async () => {
   assert.equal(result.data.tour.photoCount, 3);
 });
 
+test('loads photos and logs in one batch and returns empty lists when none exist', async () => {
+  const secondTour = { ...tour, id: 8 };
+  const queries = [];
+  pool.query = async (sql, params) => {
+    queries.push(sql);
+    if (sql.includes('FROM tours ORDER BY started_at')) return { rows: [tour, secondTour] };
+    if (sql.includes('FROM photos')) {
+      assert.deepEqual(params, [[tour.id, secondTour.id]]);
+      return {
+        rows: [{
+          id: 1,
+          tour_id: tour.id,
+          filename: 'trail.jpg',
+          width: 800,
+          height: 600,
+          created_at: '2026-01-03T01:00:00.000Z',
+        }],
+      };
+    }
+    if (sql.includes('FROM tour_logs')) {
+      assert.match(sql, /ORDER BY recorded_at/);
+      assert.deepEqual(params, [[tour.id, secondTour.id]]);
+      return {
+        rows: [
+          {
+            id: 11,
+            tour_id: tour.id,
+            recorded_at: '2026-01-03T01:00:00.000Z',
+            lat: 61.1,
+            lon: 14.2,
+            elevation_m: 120,
+            heart_rate: 110,
+            note: 'Start',
+          },
+          {
+            id: 12,
+            tour_id: tour.id,
+            recorded_at: '2026-01-03T02:00:00.000Z',
+            lat: 61.2,
+            lon: 14.3,
+            elevation_m: null,
+            heart_rate: null,
+            note: null,
+          },
+        ],
+      };
+    }
+    throw new Error(`Unexpected query: ${sql}`);
+  };
+
+  const result = await json(
+    await request(`
+      query {
+        tours(limit: 2) {
+          id
+          photoCount
+          photos { id filename width height createdAt }
+          logs { id recordedAt lat lon elevationM heartRate note }
+        }
+      }
+    `),
+  );
+
+  assert.deepEqual(result.errors, undefined);
+  assert.equal(queries.filter((sql) => sql.includes('FROM photos')).length, 1);
+  assert.equal(queries.filter((sql) => sql.includes('FROM tour_logs')).length, 1);
+  assert.deepEqual(result.data.tours[0], {
+    id: '7',
+    photoCount: 1,
+    photos: [{
+      id: '1',
+      filename: 'trail.jpg',
+      width: 800,
+      height: 600,
+      createdAt: '2026-01-03T01:00:00.000Z',
+    }],
+    logs: [
+      {
+        id: '11',
+        recordedAt: '2026-01-03T01:00:00.000Z',
+        lat: 61.1,
+        lon: 14.2,
+        elevationM: 120,
+        heartRate: 110,
+        note: 'Start',
+      },
+      {
+        id: '12',
+        recordedAt: '2026-01-03T02:00:00.000Z',
+        lat: 61.2,
+        lon: 14.3,
+        elevationM: null,
+        heartRate: null,
+        note: null,
+      },
+    ],
+  });
+  assert.deepEqual(result.data.tours[1].photos, []);
+  assert.deepEqual(result.data.tours[1].logs, []);
+  assert.equal(result.data.tours[1].photoCount, 0);
+});
+
 test('reports the database query count for each request', async () => {
   const secondTour = { ...tour, id: 8, guide_id: null };
   let calls = 0;

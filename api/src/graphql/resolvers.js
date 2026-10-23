@@ -56,6 +56,16 @@ export const resolvers = {
     createdAt: (user) => user.created_at,
   },
 
+  Photo: {
+    createdAt: (photo) => photo.created_at,
+  },
+
+  TourLog: {
+    recordedAt: (log) => log.recorded_at,
+    elevationM: (log) => log.elevation_m,
+    heartRate: (log) => log.heart_rate,
+  },
+
   Tour: {
     startedAt: (tour) => tour.started_at,
     distanceM: (tour) => tour.distance_m,
@@ -66,6 +76,10 @@ export const resolvers = {
       if (tour.guide_id == null) return null;
       return context.loaders.guide.load(tour.guide_id);
     },
+
+    photos: (tour, _args, context) => context.loaders.photos.load(tour.id),
+
+    logs: (tour, _args, context) => context.loaders.logs.load(tour.id),
 
     photoCount: async (tour, _args, context) => {
       const photos = await context.loaders.photos.load(tour.id);

@@ -1,13 +1,42 @@
 import { createSchema, createYoga } from 'graphql-yoga';
 import jwt from 'jsonwebtoken';
 import { config } from '../config.js';
+import { pool } from '../db/client.js';
 import { typeDefs } from './schema.js';
 import { resolvers } from './resolvers.js';
+import { createLoaders } from './loaders.js';
 
 const schema = createSchema({
   typeDefs,
   resolvers,
 });
+
+const createRequestDb = () => {
+  const state = { count: 0 };
+
+  return {
+    get count() {
+      return state.count;
+    },
+    query(sql, params) {
+      state.count += 1;
+      return pool.query(sql, params);
+    },
+  };
+};
+
+const userFromRequest = (request) => {
+  const authorization = request.headers.get('authorization') ?? '';
+  const match = authorization.match(/^Bearer\s+(.+)$/i);
+
+  if (!match) return null;
+
+  try {
+    return jwt.verify(match[1], config.jwtSecret);
+  } catch {
+    return null;
+  }
+};
 
 export const yoga = createYoga({
   schema,
@@ -15,18 +44,12 @@ export const yoga = createYoga({
   graphiql: true,
 
   context: async ({ request }) => {
-    const authorization = request.headers.get('authorization') ?? '';
-    const match = authorization.match(/^Bearer\s+(.+)$/i);
+    const db = createRequestDb();
 
-    if (!match) {
-      return { user: null };
-    }
-
-    try {
-      const user = jwt.verify(match[1], config.jwtSecret);
-      return { user };
-    } catch {
-      return { user: null };
-    }
+    return {
+      user: userFromRequest(request),
+      db,
+      loaders: createLoaders(db),
+    };
   },
 });

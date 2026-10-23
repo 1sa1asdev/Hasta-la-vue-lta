@@ -27,6 +27,30 @@ Measured on 2026-10-19 against the local database after `npm run seed` (seed dat
 | Tour list (50) | REST    |             1 | 294 625 (~288 KB) |  ~0.07 s |  up to 201 |
 | Tour list (50) | GraphQL |             1 |   6 727 (~6.6 KB) |  ~0.02 s |  up to 151 |
 
+### How the response sizes were measured
+
+HTTP request count is one call per use case. Response bytes and time came from `curl` against the local API. The same checks work in Postman or in GraphiQL at `http://localhost:4000/graphql` (browser Network tab for size).
+
+REST tour list:
+
+```bash
+curl -sS -o /tmp/rest-tours.json -w 'bytes=%{size_download} time=%{time_total}\n' \
+  http://localhost:4000/api/tours
+```
+
+GraphQL tour list (same fields as `client/src/queries.ts`):
+
+```bash
+curl -sS -o /tmp/gql-tours.json -w 'bytes=%{size_download} time=%{time_total}\n' \
+  http://localhost:4000/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"query($limit:Int){ tours(limit:$limit){ id title distanceM photoCount user{displayName} guide{title} } }","variables":{"limit":50}}'
+```
+
+Guide list uses the same flags against `GET /api/guides` and a GraphQL `guides { … }` query with the card fields.
+
+In Postman: GET for REST paths; POST to `/graphql` with header `Content-Type: application/json` and a raw JSON body `{ "query": "...", "variables": { ... } }`. Read size and time from the response panel.
+
 ### How the database query counts were derived
 
 Counts come from reading the code. They match the N+1 pattern already described in `docs/decisions/databas.md`.

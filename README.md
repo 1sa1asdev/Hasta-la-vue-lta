@@ -62,7 +62,7 @@ The application is then available at <http://localhost:3001> and the API at <htt
 
 The Vue client now uses [`@urql/vue`](./client/src/urql.ts) instead of the previous hand-written `graphql()` fetch helper. The URQL client is registered with Vue in [`client/src/main.js`](./client/src/main.js), sends operations to `/graphql`, and uses the `cacheExchange` and `fetchExchange`. Requests use `POST` because `preferGetMethod` is disabled.
 
-Data loading and the mapping from GraphQL response fields to the client's existing view models live in [`client/src/queries.ts`](./client/src/queries.ts). The former `client/src/graphql.ts` helper and its dedicated test file have been removed.
+The homepage, guide list, and tour list use `useQuery` with generated GraphQL documents. Shared operation documents and mappings to the existing view models live in [`client/src/queries.ts`](./client/src/queries.ts). The former `client/src/graphql.ts` helper and its dedicated test file have been removed.
 
 The client also includes the `graphql` runtime and GraphQL Code Generator CLI/client-preset development dependencies for typed operation generation.
 
@@ -95,6 +95,7 @@ Ask Marcus.
 - `npm test` – Runs Vitest once and exits.
 - `npm run build` – Builds the Vue client for production.
 - `npm run typecheck` – Checks TypeScript types in the client and API.
+- `npm run codegen --workspace=client` – Regenerates GraphQL documents and result types after query or schema changes.
 
 ## Frontend image
 

@@ -1,33 +1,11 @@
-// Fetches the guide list and the tour table from GraphQL.
-// Renames the fields so the Vue pages keep the data shape they already use.
+// Generated GraphQL documents and mappings for the Vue views.
 
 import type { Guide } from '@utpost/shared'
 import type { TourListItem } from '../lib/tours'
-import { client } from './urql'
+import { graphql } from './gql'
+import type { GuidesQuery, ToursQuery } from './gql/graphql'
 
-interface GraphQLGuide {
-  id: string
-  slug: string
-  title: string
-  region: string
-  difficulty: string
-  lengthKm: number
-  bodyHtml: string
-  heroImage: string | null
-  published: boolean
-  updatedAt: string
-}
-
-interface GraphQLTour {
-  id: string
-  title: string
-  distanceM: number
-  photoCount: number
-  user: { displayName: string } | null
-  guide: { title: string } | null
-}
-
-const GUIDES_QUERY = /* GraphQL */ `
+export const GUIDES_QUERY = graphql(/* GraphQL */ `
   query Guides {
     guides {
       id
@@ -42,9 +20,9 @@ const GUIDES_QUERY = /* GraphQL */ `
       updatedAt
     }
   }
-`
+`)
 
-const TOURS_QUERY = /* GraphQL */ `
+export const TOURS_QUERY = graphql(/* GraphQL */ `
   query Tours($limit: Int) {
     tours(limit: $limit) {
       id
@@ -59,9 +37,9 @@ const TOURS_QUERY = /* GraphQL */ `
       }
     }
   }
-`
+`)
 
-const toGuide = (guide: GraphQLGuide): Guide => ({
+export const toGuide = (guide: GuidesQuery['guides'][number]): Guide => ({
   id: Number(guide.id),
   slug: guide.slug,
   title: guide.title,
@@ -75,7 +53,7 @@ const toGuide = (guide: GraphQLGuide): Guide => ({
   updated_at: guide.updatedAt,
 })
 
-const toTourListItem = (tour: GraphQLTour): TourListItem => ({
+export const toTourListItem = (tour: ToursQuery['tours'][number]): TourListItem => ({
   id: Number(tour.id),
   title: tour.title,
   distance_m: tour.distanceM,
@@ -83,37 +61,3 @@ const toTourListItem = (tour: GraphQLTour): TourListItem => ({
   guide: tour.guide ? { title: tour.guide.title } : null,
   photoCount: tour.photoCount,
 })
-
-/** The guide list. */
-export const fetchGuides = async (): Promise<Guide[]> => {
-  const result = await client
-    .query(GUIDES_QUERY, {})
-    .toPromise()
-
-  if (result.error) {
-    throw result.error
-  }
-
-  if (!result.data) {
-    throw new Error('No data returned by Guides query')
-  }
-
-  return result.data.guides.map(toGuide)
-}
-
-/** The tour table. */
-export const fetchTours = async (): Promise<TourListItem[]> => {
-  const result = await client
-    .query(TOURS_QUERY, { limit: 50 })
-    .toPromise()
-
-  if (result.error) {
-    throw result.error
-  }
-
-  if (!result.data) {
-    throw new Error('No data returned by Tours query')
-  }
-
-  return result.data.tours.map(toTourListItem)
-}

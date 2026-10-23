@@ -1,30 +1,20 @@
 <script setup lang="ts">
-import { fetchTours } from '../queries'
+import { useQuery } from '@urql/vue'
+import { TOURS_QUERY, toTourListItem } from '../queries'
 import { toTourRow } from '../../lib/tours'
-import type { TourListItem } from '../../lib/tours'
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 
-const tours = ref<TourListItem[]>([])
-const loading = ref(true)
-const error = ref<unknown>(null)
-const rows = computed(() => tours.value.map(toTourRow))
-
-onMounted(() => {
-  fetchTours()
-    .then((toursResponse) => {
-      tours.value = toursResponse
-    })
-    .catch((e) => {
-      console.log('Error', e)
-      error.value = e
-    })
-    .finally(() => (loading.value = false))
+const { data, fetching, error } = useQuery({
+  query: TOURS_QUERY,
+  variables: { limit: 50 },
 })
+
+const rows = computed(() => (data.value?.tours ?? []).map(toTourListItem).map(toTourRow))
 </script>
 
 <template>
   <h3>Turer</h3>
-  <table v-if="loading === false && rows.length > 0" class="tours">
+  <table v-if="!fetching && !error && rows.length > 0" class="tours">
     <thead>
       <tr>
         <th>Tur</th>
@@ -47,7 +37,7 @@ onMounted(() => {
     </tbody>
   </table>
 
-  <p v-if="loading">Loading...</p>
-  <p v-if="loading === false && error === null && rows.length === 0">No tours</p>
-  <p v-if="error !== null">{{ error }}</p>
+  <p v-if="fetching">Loading...</p>
+  <p v-if="!fetching && !error && rows.length === 0">No tours</p>
+  <p v-if="error">{{ error.message }}</p>
 </template>

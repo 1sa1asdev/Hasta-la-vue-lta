@@ -3,7 +3,7 @@
 
 import type { Guide } from '@utpost/shared'
 import type { TourListItem } from '../lib/tours'
-import { graphql } from './graphql'
+import { client } from './urql'
 
 interface GraphQLGuide {
   id: string
@@ -84,14 +84,36 @@ const toTourListItem = (tour: GraphQLTour): TourListItem => ({
   photoCount: tour.photoCount,
 })
 
-/** The guide list. Search stays in the browser; the API has no search argument. */
+/** The guide list. */
 export const fetchGuides = async (): Promise<Guide[]> => {
-  const data = await graphql<{ guides: GraphQLGuide[] }>(GUIDES_QUERY)
-  return data.guides.map(toGuide)
+  const result = await client
+    .query(GUIDES_QUERY, {})
+    .toPromise()
+
+  if (result.error) {
+    throw result.error
+  }
+
+  if (!result.data) {
+    throw new Error('No data returned by Guides query')
+  }
+
+  return result.data.guides.map(toGuide)
 }
 
-/** The tour table. Same 50-row cap as the REST list, without photo or log rows. */
+/** The tour table. */
 export const fetchTours = async (): Promise<TourListItem[]> => {
-  const data = await graphql<{ tours: GraphQLTour[] }>(TOURS_QUERY, { limit: 50 })
-  return data.tours.map(toTourListItem)
+  const result = await client
+    .query(TOURS_QUERY, { limit: 50 })
+    .toPromise()
+
+  if (result.error) {
+    throw result.error
+  }
+
+  if (!result.data) {
+    throw new Error('No data returned by Tours query')
+  }
+
+  return result.data.tours.map(toTourListItem)
 }

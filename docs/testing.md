@@ -61,3 +61,82 @@ We do not test the internal functionality of Vue, Pinia, or Vitest. We do not wr
 ## Consequences
 
 We need to spend time writing and maintaining tests when behavior changes. In return, the team receives fast feedback in CI and has a better opportunity to detect regressions before merging.
+
+
+## M5 – API Integration Tests (Issue #91)
+
+API integration tests use Vitest and are located in
+`api/src/graphql/server.test.js`.
+
+The tests use GraphQL Yoga through `yoga.fetch` and cover:
+
+- GraphQL server response.
+- Authentication requirement for `createTour`.
+- Fetching guides from PostgreSQL.
+- Fetching tours from PostgreSQL.
+- Fetching a guide by slug from PostgreSQL.
+- Writing and reading a temporary document in MongoDB, then removing it.
+
+### Local test result
+
+Date: 2026-10-23
+
+Command: `npm run test:api`
+
+- Test files: 1 passed
+- Tests: 6 passed, 0 failed
+- Test execution time: 670 ms
+- Total duration: 3.52 seconds
+
+PostgreSQL and MongoDB were running through Docker Compose.
+The database connection environment variables were supplied
+when running the command.
+
+### Remaining work
+
+- Add the N+1 regression test when the DataLoader implementation is available.
+- Document the N+1 measurements before and after the fix.
+
+## M5 – API Integration Tests (Issue #91)
+
+API integration tests use Vitest and are located in `api/src/graphql/server.test.js`.
+
+The tests use GraphQL Yoga through `yoga.fetch` and cover:
+
+- GraphQL server response.
+- Authentication requirement for `createTour`.
+- Fetching guides from PostgreSQL.
+- Fetching tours from PostgreSQL.
+- Fetching a guide by slug from PostgreSQL.
+- Writing and reading a temporary document in MongoDB, then removing it.
+- N+1 regression testing using DataLoader and `extensions.databasfragor` against PostgreSQL.
+
+### Local test result
+
+Date: 2026-10-25
+
+Command: `npm run test:api`
+
+- Test files: 1 passed
+- Tests: 7 passed, 0 failed
+- Test execution time: 1.56 seconds
+- Total duration: 3.96 seconds
+
+PostgreSQL and MongoDB were running through Docker Compose. The database connection environment variables were supplied when running the command.
+
+### N+1 regression test
+
+The N+1 regression test requests 50 tours with their `user`, `guide`, and `photoCount` fields using `yoga.fetch`.
+
+The test verifies that `extensions.databasfragor` is a number and that the SQL query count does not exceed 4.
+
+The DataLoader measurements documented in the README are:
+
+| Measurement | SQL queries |
+| --- | --- |
+| Before DataLoader | 138 |
+| After DataLoader | 4 |
+
+This represents approximately a 97.1% reduction in SQL queries.
+
+The N+1 regression test passed locally against PostgreSQL.

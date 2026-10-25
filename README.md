@@ -251,3 +251,22 @@ The same `Tours(limit: 50)` query was run again after seeding with `docker compo
 Calculation: `1 + 1 + 1 + 1 = 4`.
 
 The user, guide, and photo lookups are each one `WHERE ... = ANY(...)` query for the whole list. The baseline for this query was **138** SQL queries. DataLoader reduced that to **4**.
+
+## Mätning före/efter (M5)
+
+Issue #91 – API Integration Tests with Vitest.
+
+The N+1 measurement uses the GraphQL query `tours(limit: 50)` with the `user`, `guide`, and `photoCount` fields.
+
+The following results were documented in Issue #87's DataLoader implementation:
+
+| Measurement | Number of database queries |
+| --- | --- |
+| Before the DataLoader fix | 138 |
+| After the DataLoader fix | 4 |
+
+DataLoader reduced the number of SQL queries from **138 to 4**, a reduction of approximately **97.1%**.
+
+The API exposes the database query count through `extensions.databasfragor` in the GraphQL response.
+
+Issue #91 adds a Vitest integration test using `yoga.fetch` against the real database to verify that the query count remains low and prevent N+1 regressions.

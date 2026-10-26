@@ -1,6 +1,6 @@
 # Decision: Testing Strategy for Utpost
 
-**Date:** 2026-10-01
+**Date:** 2026-10-01  
 **Status:** Proposal for team review (M2)
 
 ## Decision
@@ -23,18 +23,18 @@ Our technical debt inventory (`docs/debt.md`) describes problems including inval
 
 ## Test Map
 
-| Project Code                          | Level            | What Should Be Tested?                                                                                  |
-| ------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------- |
-| `client/src/components/GuideCard.vue` | Component        | The correct guide information is displayed when the component receives data.                            |
-| `client/src/views/GuidesView.vue`     | Component        | Guides are displayed when the API returns data.                                                         |
-| `client/src/views/GuidesView.vue`     | Component        | A clear empty state is displayed when the list is empty.                                                |
-| `client/src/views/GuidesView.vue`     | Component        | The user receives feedback when the API request fails.                                                  |
-| `client/src/views/ToursView.vue`      | Component        | Tours are displayed correctly when data is received.                                                    |
-| `client/src/views/ToursView.vue`      | Component        | Empty lists and API errors are handled clearly.                                                         |
-| `api/src/lib/auth.js`                 | Unit/integration | Invalid or missing authentication is handled according to the route's requirements (technical debt #4). |
-| `api/src/routes/guides.js`            | API/integration  | The guide list has the expected response structure according to `@utpost/shared`.                       |
-| `api/src/routes/tours.js`             | API/integration  | Invalid IDs return a controlled HTTP error without crashing the server (technical debt #5).             |
-| `api/src/routes/photos.js`            | API/integration  | Invalid input produces a controlled error.                                                              |
+| Project Code | Level | What Should Be Tested? |
+| --- | --- | --- |
+| `client/src/components/GuideCard.vue` | Component | The correct guide information is displayed when the component receives data. |
+| `client/src/views/GuidesView.vue` | Component | Guides are displayed when the API returns data. |
+| `client/src/views/GuidesView.vue` | Component | A clear empty state is displayed when the list is empty. |
+| `client/src/views/GuidesView.vue` | Component | The user receives feedback when the API request fails. |
+| `client/src/views/ToursView.vue` | Component | Tours are displayed correctly when data is received. |
+| `client/src/views/ToursView.vue` | Component | Empty lists and API errors are handled clearly. |
+| `api/src/lib/auth.js` | Unit/integration | Invalid or missing authentication is handled according to the route's requirements (technical debt #4). |
+| `api/src/routes/guides.js` | API/integration | The guide list has the expected response structure according to `@utpost/shared`. |
+| `api/src/routes/tours.js` | API/integration | Invalid IDs return a controlled HTTP error without crashing the server (technical debt #5). |
+| `api/src/routes/photos.js` | API/integration | Invalid input produces a controlled error. |
 
 The table identifies the behaviors we want to protect. File names refer to the codebase at the date of this decision and may be updated as JavaScript files are migrated to TypeScript.
 
@@ -61,41 +61,6 @@ We do not test the internal functionality of Vue, Pinia, or Vitest. We do not wr
 ## Consequences
 
 We need to spend time writing and maintaining tests when behavior changes. In return, the team receives fast feedback in CI and has a better opportunity to detect regressions before merging.
-
-
-## M5 – API Integration Tests (Issue #91)
-
-API integration tests use Vitest and are located in
-`api/src/graphql/server.test.js`.
-
-The tests use GraphQL Yoga through `yoga.fetch` and cover:
-
-- GraphQL server response.
-- Authentication requirement for `createTour`.
-- Fetching guides from PostgreSQL.
-- Fetching tours from PostgreSQL.
-- Fetching a guide by slug from PostgreSQL.
-- Writing and reading a temporary document in MongoDB, then removing it.
-
-### Local test result
-
-Date: 2026-10-23
-
-Command: `npm run test:api`
-
-- Test files: 1 passed
-- Tests: 6 passed, 0 failed
-- Test execution time: 670 ms
-- Total duration: 3.52 seconds
-
-PostgreSQL and MongoDB were running through Docker Compose.
-The database connection environment variables were supplied
-when running the command.
-
-### Remaining work
-
-- Add the N+1 regression test when the DataLoader implementation is available.
-- Document the N+1 measurements before and after the fix.
 
 ## M5 – API Integration Tests (Issue #91)
 
@@ -140,3 +105,20 @@ The DataLoader measurements documented in the README are:
 This represents approximately a 97.1% reduction in SQL queries.
 
 The N+1 regression test passed locally against PostgreSQL.
+
+### N+1 regression verification (2026-10-26)
+
+To verify that the N+1 regression test detects unbatched database queries, the `user` DataLoader was temporarily modified to execute one SQL query per unique user ID instead of batching IDs into a single SQL query.
+
+The existing N+1 integration test failed as expected:
+
+- SQL queries with normal DataLoader: 4.
+- SQL queries with user batching disabled: 15.
+- Assertion failure: `expected 15 to be less than or equal to 4`.
+- Other integration tests: 6 passed.
+
+The original `loaders.js` was then restored without retaining any changes to the DataLoader implementation.
+
+After restoration, `npm run test:api` passed again: **7 tests passed, 0 failed**.
+
+This confirms that the existing N+1 regression test detects an increase in SQL queries when user batching is disabled.

@@ -86,9 +86,7 @@ const toTourListItem = (tour: GraphQLTour): TourListItem => ({
 
 /** The guide list. */
 export const fetchGuides = async (): Promise<Guide[]> => {
-  const result = await client
-    .query(GUIDES_QUERY, {})
-    .toPromise()
+  const result = await client.query(GUIDES_QUERY, {}, { requestPolicy: 'network-only' }).toPromise()
 
   if (result.error) {
     throw result.error
@@ -104,7 +102,7 @@ export const fetchGuides = async (): Promise<Guide[]> => {
 /** The tour table. */
 export const fetchTours = async (): Promise<TourListItem[]> => {
   const result = await client
-    .query(TOURS_QUERY, { limit: 50 })
+    .query(TOURS_QUERY, { limit: 50 }, { requestPolicy: 'network-only' })
     .toPromise()
 
   if (result.error) {

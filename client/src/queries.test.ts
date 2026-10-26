@@ -1,12 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
-import { GRAPHQL_URL } from './graphql'
 import { fetchGuides, fetchTours } from './queries'
 
-const response = (body: unknown) => ({
-  ok: true,
-  status: 200,
-  json: async () => body,
-})
+const GRAPHQL_URL = '/graphql'
+
+const response = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  })
 
 describe('fetchGuides', () => {
   it('maps a GraphQL guide onto the fields the cards already use', async () => {
@@ -52,7 +53,7 @@ describe('fetchGuides', () => {
     expect(url).toBe(GRAPHQL_URL)
     const body = JSON.parse(init.body)
     expect(body.query).toContain('lengthKm')
-    expect(body.variables).toBeUndefined()
+    expect(body.variables).toEqual({})
   })
 })
 

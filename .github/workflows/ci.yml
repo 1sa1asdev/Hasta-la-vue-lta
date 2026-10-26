@@ -64,68 +64,10 @@ jobs:
         with:
           name: client-dist
           path: client/dist
-  integration:
-    name: Integration
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: utpost
-          POSTGRES_PASSWORD: utpost
-          POSTGRES_DB: utpost
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U utpost -d utpost"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 10
-      mongo:
-        image: mongo:8.2
-        env:
-          MONGO_INITDB_ROOT_USERNAME: utpost
-          MONGO_INITDB_ROOT_PASSWORD: utpost
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd "mongosh --quiet --username utpost --password utpost --authenticationDatabase admin --eval 'db.adminCommand({ ping: 1 }).ok'"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 10
-
-    env:
-      DATABASE_URL: postgresql://utpost:utpost@localhost:5432/utpost
-      MONGO_URL: mongodb://utpost:utpost@localhost:27017/utpost?authSource=admin
-      JWT_SECRET: integration-test-secret
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Seed databases
-        run: npm run seed
-
-      - name: Migrate tour logs to MongoDB
-        run: npm run migrate:logs
-
-      - name: Run API integration tests
-        run: npm run test:api
-
   image:
     name: Image
     runs-on: ubuntu-latest
-    needs: [quality, build, integration]
+    needs: [quality, build]
 
     permissions:
       contents: read

@@ -10,7 +10,6 @@
     "test:legacy": "node --test test/graphql.test.js",
     "test:integration": "node --test test/graphql.integration.test.js",
     "seed": "node src/db/seed.js",
-    "migrate:logs": "node src/db/migrate-logs.js",
     "typecheck": "tsc --noEmit",
     "mongo-smoke": "node src/db/mongo-smoke.js"
   },

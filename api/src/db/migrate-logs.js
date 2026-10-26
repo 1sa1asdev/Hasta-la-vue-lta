@@ -77,7 +77,7 @@ const verify = async () => {
 const run = async () => {
   await mongo.connect();
   try {
-    await migrate();
+    if (!process.argv.includes('--verify-only')) await migrate();
     if (!(await verify())) process.exitCode = 1;
   } finally {
     await mongo.close();

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "test": "node --test test/graphql.test.js",
+    "test": "vitest run",
+    "test:legacy": "node --test test/graphql.test.js",
     "test:integration": "node --test test/graphql.integration.test.js",
     "seed": "node src/db/seed.js",
     "migrate:logs": "node src/db/migrate-logs.js",
@@ -26,6 +27,7 @@
     "pg": "^8.13.1"
   },
   "devDependencies": {
-    "typescript": "~6.0.0"
+    "typescript": "~6.0.0",
+    "vitest": "^3.2.7"
   }
 }

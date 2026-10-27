@@ -42,6 +42,19 @@ Jobbet väntar på att båda tjänsternas health checks är gröna. Det använde
 
 `migrate:logs` kopierar turerna och deras loggpunkter från PostgreSQL till MongoDB. Den är idempotent och verifierar att antalet turer och loggpunkter matchar PostgreSQL innan jobbet fortsätter.
 
+`test:api` innehåller regressionstestet för N+1 (`begränsar antalet databasfrågor med DataLoader`). Det läser `extensions.databasfragor` och gör jobbet rött om turlistan kostar fler än 4 databasfrågor.
+
+### Uppmätt tid för Integration
+
+Tider från GitHub Actions 2026-10-27, jobbets totala tid:
+
+| Körning | Integration | Länk |
+| --- | ---: | --- |
+| Pull request (`ci/integration-databases`) | 55 s | [körning 40554449564](https://github.com/1sa1asdev/Hasta-la-vue-lta/actions/runs/40554449564/job/122366623610) |
+| Push till `main` (merge av #102) | 50 s | [körning 40557378215](https://github.com/1sa1asdev/Hasta-la-vue-lta/actions/runs/40557378215/job/122376943713) |
+
+På samma körning på `main` var alla fyra jobben gröna: Kvalitet 36 s, Bygg 17 s, Integration 50 s och Image 60 s.
+
 ## Nödvändiga checks
 
 Branch protection för `main` kräver att följande checks är gröna innan en pull request kan mergas:
@@ -55,7 +68,7 @@ Branch protection för `main` kräver att följande checks är gröna innan en p
 
 ## Uppmätta tider
 
-Tider från den gröna GitHub Actions-körningen där Bygg-jobbet tog totalt 25 s och Kvalitet-jobbet 19 s:
+Tider från en tidigare grön GitHub Actions-körning, innan Integration-jobbet fanns, där Bygg-jobbet tog totalt 25 s och Kvalitet-jobbet 19 s:
 
 | Steg               |  Tid |
 | ------------------ | ---: |

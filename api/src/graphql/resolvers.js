@@ -1,5 +1,4 @@
 import { GraphQLError } from 'graphql';
-import { pool } from '../db/client.js';
 
 const unauthenticatedError = () =>
   new GraphQLError('Authentication required', {
@@ -8,36 +7,36 @@ const unauthenticatedError = () =>
 
 export const resolvers = {
   Query: {
-    guides: async () => {
-      const result = await pool.query(
+    guides: async (_parent, _args, context) => {
+      const result = await context.db.query(
         'SELECT * FROM guides ORDER BY id',
       );
       return result.rows;
     },
 
-    guide: async (_, { slug }) => {
-      const result = await pool.query(
+    guide: async (_parent, { slug }, context) => {
+      const result = await context.db.query(
         'SELECT * FROM guides WHERE slug = $1 LIMIT 1',
         [slug],
       );
       return result.rows[0] ?? null;
     },
 
-    tours: async (_, { limit }) => {
+    tours: async (_parent, { limit }, context) => {
       const safeLimit = Math.min(
         Math.max(Number.isInteger(limit) ? limit : 50, 0),
         200,
       );
 
-      const result = await pool.query(
+      const result = await context.db.query(
         'SELECT * FROM tours ORDER BY started_at DESC LIMIT $1',
         [safeLimit],
       );
       return result.rows;
     },
 
-    tour: async (_, { id }) => {
-      const result = await pool.query(
+    tour: async (_parent, { id }, context) => {
+      const result = await context.db.query(
         'SELECT * FROM tours WHERE id = $1 LIMIT 1',
         [id],
       );
@@ -57,35 +56,34 @@ export const resolvers = {
     createdAt: (user) => user.created_at,
   },
 
+  Photo: {
+    createdAt: (photo) => photo.created_at,
+  },
+
+  TourLog: {
+    recordedAt: (log) => log.t,
+    elevationM: (log) => log.elevation_m,
+    heartRate: (log) => log.heart_rate,
+  },
+
   Tour: {
     startedAt: (tour) => tour.started_at,
     distanceM: (tour) => tour.distance_m,
 
-    user: async (tour) => {
-      const result = await pool.query(
-        `SELECT id, display_name, role, created_at
-         FROM users WHERE id = $1 LIMIT 1`,
-        [tour.user_id],
-      );
-      return result.rows[0] ?? null;
-    },
+    user: (tour, _args, context) => context.loaders.user.load(tour.user_id),
 
-    guide: async (tour) => {
+    guide: (tour, _args, context) => {
       if (tour.guide_id == null) return null;
-
-      const result = await pool.query(
-        'SELECT * FROM guides WHERE id = $1 LIMIT 1',
-        [tour.guide_id],
-      );
-      return result.rows[0] ?? null;
+      return context.loaders.guide.load(tour.guide_id);
     },
 
-    photoCount: async (tour) => {
-      const result = await pool.query(
-        'SELECT COUNT(*)::int AS count FROM photos WHERE tour_id = $1',
-        [tour.id],
-      );
-      return Number(result.rows[0]?.count ?? 0);
+    photos: (tour, _args, context) => context.loaders.photos.load(tour.id),
+
+    logs: (tour, _args, context) => context.loaders.logs.load(tour.id),
+
+    photoCount: async (tour, _args, context) => {
+      const photos = await context.loaders.photos.load(tour.id);
+      return photos.length;
     },
   },
 
@@ -95,7 +93,7 @@ export const resolvers = {
         throw unauthenticatedError();
       }
 
-      const result = await pool.query(
+      const result = await context.db.query(
         `INSERT INTO tours
           (user_id, guide_id, title, started_at, distance_m, notes)
          VALUES ($1, $2, $3, $4, $5, $6)

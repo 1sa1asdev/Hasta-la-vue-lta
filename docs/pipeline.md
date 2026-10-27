@@ -7,9 +7,12 @@ flowchart LR
   B[branch + commit] --> PR[pull request]
   PR --> Q[Kvalitet: lint · format · test]
   PR --> BU[Bygg]
-  Q --> S{gröna?}
+  PR --> I[Integration: Postgres + MongoDB]
+  Q --> S{alla gröna?}
   BU --> S
-  S -->|ja| M[merge]
+  I --> S
+  S -->|ja| IM[Image]
+  IM --> M[merge]
   S -->|nej| F[fixa, pusha igen]
 ```
 
@@ -19,28 +22,58 @@ flowchart LR
 - **Format check:** kontrollerar att koden följer projektets Prettier-format.
 - **Test:** kör Vitest och kontrollerar att testerna passerar.
 - **Build:** kontrollerar att Vue-klienten kan byggas för produktion utan byggfel.
+- **Integration:** startar riktiga PostgreSQL- och MongoDB-tjänster, seedar databaserna, migrerar turloggarna och kör API-testerna mot båda databaserna.
+
+## Integration
+
+Integration-jobbet körs både för pull requests mot `main` och för pushes till `main`. GitHub Actions startar följande tjänster:
+
+| Tjänst     | Image         | Port på runner |
+| ---------- | ------------- | -------------: |
+| PostgreSQL | `postgres:16` |         `5432` |
+| MongoDB    | `mongo:8.2`   |        `27017` |
+
+Jobbet väntar på att båda tjänsternas health checks är gröna. Det använder testdatabaserna `utpost` med användaren `utpost` och kör sedan:
+
+1. `npm ci`
+2. `npm run seed`
+3. `npm run migrate:logs`
+4. `npm run test:api`
+
+`migrate:logs` kopierar turerna och deras loggpunkter från PostgreSQL till MongoDB. Den är idempotent och verifierar att antalet turer och loggpunkter matchar PostgreSQL innan jobbet fortsätter.
+
+## Nödvändiga checks
+
+Branch protection för `main` kräver att följande checks är gröna innan en pull request kan mergas:
+
+- **Kvalitet**
+- **Bygg**
+- **Integration**
+- **Image**
+
+`Image` väntar på att Kvalitet, Bygg och Integration har lyckats. På pull requests byggs images utan att publiceras. På pushes till `main` publiceras de till GHCR.
 
 ## Uppmätta tider
 
 Tider från den gröna GitHub Actions-körningen där Bygg-jobbet tog totalt 25 s och Kvalitet-jobbet 19 s:
 
-| Steg | Tid |
-| --- | ---: |
-| npm ci (Kvalitet) | 8 s |
-| Lint | 1 s |
-| Format check | 1 s |
-| Test | 2 s |
-| npm ci (Bygg) | 10 s |
-| Build | 2 s |
-| Upload client dist | 2 s |
-| Kvalitet totalt | 19 s |
-| Bygg totalt | 25 s |
+| Steg               |  Tid |
+| ------------------ | ---: |
+| npm ci (Kvalitet)  |  8 s |
+| Lint               |  1 s |
+| Format check       |  1 s |
+| Test               |  2 s |
+| npm ci (Bygg)      | 10 s |
+| Build              |  2 s |
+| Upload client dist |  2 s |
+| Kvalitet totalt    | 19 s |
+| Bygg totalt        | 25 s |
 
 Det längsta enskilda steget var `npm ci` i Bygg-jobbet med 10 sekunder.
 
 ## Docker images och publicering
 
-Image-jobbet körs efter att både Kvalitet- och Bygg-jobben har lyckats. Det bygger Docker-images för API:t (`api/Dockerfile`) och klienten (`client/Dockerfile`).
+Image-jobbet körs efter att Kvalitet, Bygg och Integration har lyckats. Det bygger Docker-images för API:t (`api/Dockerfile`) och klienten (`client/Dockerfile`).
 
 - **Pull request:** Båda images byggs för att verifiera att Docker-byggena fungerar. De publiceras inte till GitHub Container Registry (GHCR).
 - **Push till `main`:** Båda images publiceras till GHCR.

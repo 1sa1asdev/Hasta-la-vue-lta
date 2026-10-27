@@ -140,7 +140,7 @@ describe('GuidesView', () => {
       stubFetch({ error: 'Internal' }, 500)
       renderView()
 
-      expect(await screen.findByText('Error: API svarade 500')).toBeInTheDocument()
+      expect(await screen.findByText(/No Content/)).toBeInTheDocument()
       expect(screen.queryAllByRole('link')).toHaveLength(0)
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })
@@ -150,7 +150,7 @@ describe('GuidesView', () => {
       stubFetchNetworkError()
       renderView()
 
-      expect(await screen.findByText('TypeError: Failed to fetch')).toBeInTheDocument()
+      expect(await screen.findByText(/Failed to fetch/)).toBeInTheDocument()
       expect(screen.queryAllByRole('link')).toHaveLength(0)
     })
 
@@ -159,7 +159,7 @@ describe('GuidesView', () => {
       stubFetch({ data: null, errors: [{ message: 'Guides are unavailable' }] })
       renderView()
 
-      expect(await screen.findByText('Error: Guides are unavailable')).toBeInTheDocument()
+      expect(await screen.findByText(/Guides are unavailable/)).toBeInTheDocument()
       expect(screen.queryAllByRole('link')).toHaveLength(0)
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })

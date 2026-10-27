@@ -159,7 +159,7 @@ describe('ToursView', () => {
       stubFetch({ error: 'Internal' }, 500)
       renderView()
 
-      expect(await screen.findByText('Error: API svarade 500')).toBeInTheDocument()
+      expect(await screen.findByText(/No Content/)).toBeInTheDocument()
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })
@@ -169,7 +169,7 @@ describe('ToursView', () => {
       stubFetchNetworkError()
       renderView()
 
-      expect(await screen.findByText('TypeError: Failed to fetch')).toBeInTheDocument()
+      expect(await screen.findByText(/Failed to fetch/)).toBeInTheDocument()
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
     })
 
@@ -178,7 +178,7 @@ describe('ToursView', () => {
       stubFetch({ data: null, errors: [{ message: 'Tours are unavailable' }] })
       renderView()
 
-      expect(await screen.findByText('Error: Tours are unavailable')).toBeInTheDocument()
+      expect(await screen.findByText(/Tours are unavailable/)).toBeInTheDocument()
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })

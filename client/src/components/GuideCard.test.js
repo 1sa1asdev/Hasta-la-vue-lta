@@ -13,7 +13,7 @@ describe('GuideCard', () => {
 
     expect(screen.getByRole('link', { name: 'Kebnekaise' })).toHaveAttribute(
       'href',
-      '/guider/kebnekaise',
+      '/guides/kebnekaise',
     )
   })
 

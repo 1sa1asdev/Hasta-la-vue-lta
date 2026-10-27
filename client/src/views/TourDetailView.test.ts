@@ -27,20 +27,20 @@ const makeTour = (overrides: Partial<TourDetail> = {}): TourDetail => ({
   id: 7,
   user_id: 1,
   guide_id: null,
-  title: 'Toppturen',
+  title: 'Summit tour',
   started_at: '2026-06-01T08:00:00.000Z',
   distance_m: 12345,
-  notes: 'Blåsigt på toppen',
+  notes: 'Windy on the summit',
   logs,
   photos: [],
   ...overrides,
 })
 
-// Vyn läser id:t ur URL:en, så den behöver en riktig router.
-const renderView = async (path = '/turer/7') => {
+// The view reads the id from the URL, so it needs a real router.
+const renderView = async (path = '/tours/7') => {
   const router = createRouter({
     history: createMemoryHistory(),
-    routes: [{ path: '/turer/:id', component: TourDetailView }],
+    routes: [{ path: '/tours/:id', component: TourDetailView }],
   })
   router.push(path)
   await router.isReady()
@@ -51,9 +51,9 @@ describe('TourDetailView', () => {
   describe('when data arrives', () => {
     it('fetches the tour from the id in the URL', async () => {
       const fetchMock = stubFetch(makeTour({ id: 42 }))
-      await renderView('/turer/42')
+      await renderView('/tours/42')
 
-      await screen.findByRole('heading', { name: 'Toppturen' })
+      await screen.findByRole('heading', { name: 'Summit tour' })
       expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/\/tours\/42$/))
     })
 
@@ -62,7 +62,7 @@ describe('TourDetailView', () => {
       await renderView()
 
       expect(
-        await screen.findByRole('heading', { level: 1, name: 'Toppturen' }),
+        await screen.findByRole('heading', { level: 1, name: 'Summit tour' }),
       ).toBeInTheDocument()
     })
 
@@ -71,7 +71,9 @@ describe('TourDetailView', () => {
       await renderView()
 
       // 100 → 150 (+50) → 120 → 180 (+60) = 110
-      expect(await screen.findByText('12.3 km · 4 mätpunkter · 110 höjdmeter')).toBeInTheDocument()
+      expect(
+        await screen.findByText('12.3 km · 4 log points · 110 meters climbed'),
+      ).toBeInTheDocument()
     })
 
     it('skips points without elevation when counting the climb', async () => {
@@ -86,14 +88,14 @@ describe('TourDetailView', () => {
       )
       await renderView()
 
-      expect(await screen.findByText(/3 mätpunkter · 50 höjdmeter/)).toBeInTheDocument()
+      expect(await screen.findByText(/3 log points · 50 meters climbed/)).toBeInTheDocument()
     })
 
     it('shows the notes when the tour has any', async () => {
       stubFetch(makeTour())
       await renderView()
 
-      expect(await screen.findByText('Blåsigt på toppen')).toBeInTheDocument()
+      expect(await screen.findByText('Windy on the summit')).toBeInTheDocument()
     })
 
     it('lists every measurement point with time, elevation and heart rate', async () => {
@@ -104,7 +106,7 @@ describe('TourDetailView', () => {
       const items = within(list).getAllByRole('listitem')
       expect(items).toHaveLength(4)
 
-      // Tiden formateras i maskinens tidszon – räkna fram den på samma sätt.
+      // The time is formatted in the machine's time zone – compute it the same way.
       const time = new Date(logs[0]!.recorded_at).toLocaleTimeString('sv-SE')
       expect(items[0]).toHaveTextContent(`${time} · 100 m · 121 slag/min`)
     })
@@ -113,8 +115,8 @@ describe('TourDetailView', () => {
       stubFetch(makeTour())
       await renderView()
 
-      await screen.findByRole('heading', { name: 'Toppturen' })
-      expect(screen.queryByText('Laddar…')).not.toBeInTheDocument()
+      await screen.findByRole('heading', { name: 'Summit tour' })
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })
   })
 
@@ -123,7 +125,7 @@ describe('TourDetailView', () => {
       stubFetchPending()
       await renderView()
 
-      expect(screen.getByText('Laddar…')).toBeInTheDocument()
+      expect(screen.getByText('Loading...')).toBeInTheDocument()
       expect(screen.queryByRole('heading')).not.toBeInTheDocument()
     })
   })
@@ -133,7 +135,9 @@ describe('TourDetailView', () => {
       stubFetch(makeTour({ logs: [] }))
       await renderView()
 
-      expect(await screen.findByText('12.3 km · 0 mätpunkter · 0 höjdmeter')).toBeInTheDocument()
+      expect(
+        await screen.findByText('12.3 km · 0 log points · 0 meters climbed'),
+      ).toBeInTheDocument()
       expect(screen.queryAllByRole('listitem')).toHaveLength(0)
     })
 
@@ -141,8 +145,8 @@ describe('TourDetailView', () => {
       stubFetch(makeTour({ notes: null }))
       await renderView()
 
-      await screen.findByRole('heading', { name: 'Toppturen' })
-      expect(screen.queryByText('Blåsigt på toppen')).not.toBeInTheDocument()
+      await screen.findByRole('heading', { name: 'Summit tour' })
+      expect(screen.queryByText('Windy on the summit')).not.toBeInTheDocument()
     })
   })
 
@@ -152,7 +156,7 @@ describe('TourDetailView', () => {
       await renderView()
 
       expect(await screen.findByRole('alert')).toHaveTextContent('API svarade 404')
-      expect(screen.queryByText('Laddar…')).not.toBeInTheDocument()
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
       expect(screen.queryByRole('heading')).not.toBeInTheDocument()
     })
 

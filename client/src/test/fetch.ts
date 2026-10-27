@@ -2,7 +2,7 @@ import { vi } from 'vitest'
 
 let resolvePendingFetch: (() => void) | null = null
 
-// API:et svarar med `body` och given status.
+// The API answers with `body` and the given status.
 export const stubFetch = (body: unknown, status = 200, statusText = '') => {
   const fetchMock = vi.fn().mockResolvedValue(
     new Response(JSON.stringify(body), {
@@ -15,14 +15,14 @@ export const stubFetch = (body: unknown, status = 200, statusText = '') => {
   return fetchMock
 }
 
-// Nätverket ligger nere – fetch själv rejectar.
+// The network is down – fetch itself rejects.
 export const stubFetchNetworkError = (message = 'Failed to fetch') => {
   const fetchMock = vi.fn().mockRejectedValue(new TypeError(message))
   vi.stubGlobal('fetch', fetchMock)
   return fetchMock
 }
 
-// Svaret kommer aldrig – för att se laddningsläget.
+// The response never arrives – to see the loading state.
 export const stubFetchPending = () => {
   const fetchMock = vi.fn().mockImplementation(
     (_request, init) =>
@@ -53,5 +53,5 @@ export const settlePendingFetch = async () => {
   await new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-// Vyerna loggar fel med console.log – håll testutskriften ren.
+// The views log errors with console.log – keep the test output clean.
 export const silenceConsole = () => vi.spyOn(console, 'log').mockImplementation(() => {})

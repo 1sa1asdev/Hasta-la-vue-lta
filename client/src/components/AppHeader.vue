@@ -16,15 +16,15 @@ function logout() {
     <RouterLink to="/" class="logo">Utpost</RouterLink>
 
     <nav>
-      <RouterLink to="/guides">Guider</RouterLink>
-      <RouterLink to="/tours">Turer</RouterLink>
+      <RouterLink to="/guides">Guides</RouterLink>
+      <RouterLink to="/tours">Tours</RouterLink>
 
       <template v-if="session.isLoggedIn">
         <span class="username">{{ session.user?.display_name }}</span>
-        <button class="button-logout" @click="logout">Logga ut</button>
+        <button class="button-logout" @click="logout">Log out</button>
       </template>
 
-      <RouterLink v-else to="/login">Logga in</RouterLink>
+      <RouterLink v-else to="/login">Log in</RouterLink>
     </nav>
   </header>
 </template>

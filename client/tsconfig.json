@@ -8,7 +8,7 @@
     "lib": ["ESNext", "DOM"],
     "skipLibCheck": true,
     "noEmit": true,
-    // Tillåter .js-filer medan vi migrerar steg för steg
+    // Allows .js files while we migrate step by step
     "allowJs": true,
     "paths": {
       "@utpost/shared": ["../shared/src/types.ts"]

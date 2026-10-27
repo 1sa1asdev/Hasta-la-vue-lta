@@ -37,7 +37,7 @@ describe('toTourListItem', () => {
     expect(
       toTourListItem({
         id: '7',
-        title: 'Toppturen',
+        title: 'Summit tour',
         distanceM: 12345,
         photoCount: 3,
         user: { displayName: 'Anna' },
@@ -45,7 +45,7 @@ describe('toTourListItem', () => {
       }),
     ).toEqual({
       id: 7,
-      title: 'Toppturen',
+      title: 'Summit tour',
       distance_m: 12345,
       user: { display_name: 'Anna' },
       guide: null,

@@ -38,7 +38,7 @@ const tour = (overrides: Partial<TourWithRelations> = {}): TourWithRelations => 
   id: 7,
   user_id: 2,
   guide_id: null,
-  title: 'Kebnekaise runt',
+  title: 'Kebnekaise loop',
   started_at: '2026-09-01T08:00:00.000Z',
   distance_m: 12500,
   notes: null,

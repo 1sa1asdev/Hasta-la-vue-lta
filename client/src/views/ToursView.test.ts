@@ -31,7 +31,7 @@ const makeTour = (overrides: Partial<TourWithRelations> = {}): TourWithRelations
   id: 7,
   user_id: user.id,
   guide_id: guide.id,
-  title: 'Toppturen',
+  title: 'Summit tour',
   started_at: '2026-06-01T08:00:00.000Z',
   distance_m: 12345,
   notes: null,
@@ -78,11 +78,11 @@ const renderView = () =>
 describe('ToursView', () => {
   describe('when data arrives', () => {
     it('shows a table row per tour', async () => {
-      stubTours([makeTour(), makeTour({ id: 8, title: 'Kvällsturen' })])
+      stubTours([makeTour(), makeTour({ id: 8, title: 'Evening tour' })])
       renderView()
 
       expect(await screen.findByRole('table')).toBeInTheDocument()
-      // 1 rubrikrad + 2 turer
+      // 1 header row + 2 tours
       expect(screen.getAllByRole('row')).toHaveLength(3)
     })
 
@@ -90,8 +90,8 @@ describe('ToursView', () => {
       stubTours([makeTour()])
       renderView()
 
-      const link = await screen.findByRole('link', { name: 'Toppturen' })
-      expect(link).toHaveAttribute('href', '/turer/7')
+      const link = await screen.findByRole('link', { name: 'Summit tour' })
+      expect(link).toHaveAttribute('href', '/tours/7')
     })
 
     it('shows who did the tour and which guide it followed', async () => {
@@ -158,7 +158,7 @@ describe('ToursView', () => {
       renderView()
 
       expect(await screen.findByText('No tours')).toBeInTheDocument()
-      expect(screen.getByRole('heading', { name: 'Turer' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Tours' })).toBeInTheDocument()
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
       expect(screen.queryByText(/Error/)).not.toBeInTheDocument()

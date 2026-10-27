@@ -1,15 +1,15 @@
 export const API_URL = '/api'
 
-// Generisk: anroparen säger vilken typ svaret har – `get<Guide[]>('/guides')`.
-// Typen kommer från @utpost/shared, samma fil som API:et använder.
+// Generic: the caller says which type the response has – `get<Guide[]>('/guides')`.
+// The type comes from @utpost/shared, the same file the API uses.
 export const get = async <T>(path: string): Promise<T> => {
   const response = await fetch(`${API_URL}${path}`)
   if (!response.ok) throw new Error(`API svarade ${response.status}`)
   return response.json() as Promise<T>
 }
 
-// Används av inloggningen (Pinia-storen). Svarar med JSON även vid 401 – API:et skickar
-// { error: '...' } då, och storen läser det. Kastar bara när svaret inte är JSON alls.
+// Used by the login (Pinia store). Answers with JSON even on 401 – the API sends
+// { error: '...' } then, and the store reads it. Only throws when the response is not JSON at all.
 export const post = async <T>(path: string, body: unknown): Promise<T> => {
   const response = await fetch(`${API_URL}${path}`, {
     method: 'POST',

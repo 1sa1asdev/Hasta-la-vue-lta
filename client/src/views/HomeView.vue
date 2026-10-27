@@ -28,35 +28,35 @@ const regionCount = computed(
 </script>
 
 <template>
-  <p v-if="error" role="alert">Kunde inte hämta startsidan: {{ error.message }}</p>
-  <p v-else-if="fetching">Laddar…</p>
-  <p v-else-if="!data">Ingen data.</p>
+  <p v-if="error" role="alert">Could not load the home page: {{ error.message }}</p>
+  <p v-else-if="fetching">Loading...</p>
+  <p v-else-if="!data">No data.</p>
   <div v-else>
     <section class="hero">
-      <h1>Hitta din nästa tur</h1>
-      <p>{{ data.guides.length }} guider i {{ regionCount }} landskap.</p>
+      <h1>Find your next tour</h1>
+      <p>{{ data.guides.length }} guides in {{ regionCount }} regions.</p>
     </section>
 
-    <h2>Populärast just nu</h2>
+    <h2>Most popular right now</h2>
     <ul class="list">
       <li v-for="g in popularGuides" :key="g.slug">
-        <RouterLink :to="`/guider/${g.slug}`">{{ g.title }}</RouterLink>
+        <RouterLink :to="`/guides/${g.slug}`">{{ g.title }}</RouterLink>
         <span class="muted"> {{ g.region }}</span>
       </li>
     </ul>
 
-    <h2>Senaste turerna</h2>
+    <h2>Latest tours</h2>
     <ul class="list">
       <li v-for="t in data.tours" :key="t.id">
-        <RouterLink :to="`/turer/${t.id}`">{{ t.title }}</RouterLink>
+        <RouterLink :to="`/tours/${t.id}`">{{ t.title }}</RouterLink>
         <span class="muted"> {{ Math.round(t.distanceM / 100) / 10 }} km</span>
       </li>
     </ul>
 
-    <h2>Alla guider</h2>
+    <h2>All guides</h2>
     <ul class="list">
       <li v-for="g in data.guides" :key="g.slug">
-        <RouterLink :to="`/guider/${g.slug}`">{{ g.title }}</RouterLink>
+        <RouterLink :to="`/guides/${g.slug}`">{{ g.title }}</RouterLink>
         <span class="muted"> {{ g.region }} · {{ g.difficulty }} · {{ g.lengthKm }} km</span>
       </li>
     </ul>

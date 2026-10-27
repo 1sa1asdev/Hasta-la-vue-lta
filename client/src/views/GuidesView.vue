@@ -13,7 +13,7 @@ const filteredGuides = computed(() => filterGuidesByTitle(guides.value, search.v
 
 <template>
   <section class="main-section">
-    <input class="search-input" v-model="search" placeholder="Sök på namn eller landskap" />
+    <input class="search-input" v-model="search" placeholder="Search by name or region" />
     <p v-if="!fetching && !error && filteredGuides.length > 0">
       ({{ filteredGuides.length }} / {{ guides.length }})
     </p>

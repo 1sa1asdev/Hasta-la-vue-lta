@@ -13,21 +13,21 @@ const rows = computed(() => (data.value?.tours ?? []).map(toTourListItem).map(to
 </script>
 
 <template>
-  <h3>Turer</h3>
+  <h3>Tours</h3>
   <table v-if="!fetching && !error && rows.length > 0" class="tours">
     <thead>
       <tr>
-        <th>Tur</th>
-        <th>Av</th>
+        <th>Tour</th>
+        <th>By</th>
         <th>Guide</th>
-        <th>Längd</th>
-        <th>Bilder</th>
+        <th>Length</th>
+        <th>Photos</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="row in rows" :key="row.id">
         <td>
-          <RouterLink :to="'/turer/' + row.id">{{ row.title }}</RouterLink>
+          <RouterLink :to="'/tours/' + row.id">{{ row.title }}</RouterLink>
         </td>
         <td>{{ row.author }}</td>
         <td>{{ row.guide }}</td>

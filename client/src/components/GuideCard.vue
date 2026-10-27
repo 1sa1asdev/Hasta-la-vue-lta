@@ -9,7 +9,7 @@ const { guide } = defineProps<{
 
 <template>
   <div class="card">
-    <RouterLink :to="'/guider/' + guide.slug">{{ guide.title }}</RouterLink>
+    <RouterLink :to="'/guides/' + guide.slug">{{ guide.title }}</RouterLink>
     <p class="muted">{{ guide.region }} · {{ guide.difficulty }} · {{ guide.length_km }} km</p>
     <div class="excerpt" v-html="excerpt(guide.body_html)" />
   </div>

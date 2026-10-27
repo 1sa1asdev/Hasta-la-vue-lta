@@ -23,7 +23,7 @@ async function submit(e: Event) {
   const data = await res.json()
 
   if (!res.ok) {
-    error.value = data.error ?? 'Något gick fel'
+    error.value = data.error ?? 'Something went wrong'
     return
   }
 
@@ -34,13 +34,13 @@ async function submit(e: Event) {
 
 <template>
   <form class="login" @submit="submit">
-    <h1>Logga in</h1>
+    <h1>Log in</h1>
 
-    <input v-model="email" type="email" placeholder="E-post" required />
-    <input v-model="password" type="password" placeholder="Lösenord" required />
+    <input v-model="email" type="email" placeholder="Email" required />
+    <input v-model="password" type="password" placeholder="Password" required />
 
     <p v-if="error" class="error">{{ error }}</p>
 
-    <button type="submit" class="button-blue">Logga in</button>
+    <button type="submit" class="button-blue">Log in</button>
   </form>
 </template>

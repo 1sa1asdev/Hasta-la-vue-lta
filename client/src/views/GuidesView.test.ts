@@ -67,7 +67,7 @@ const renderView = () =>
     },
   })
 
-const searchBox = () => screen.getByPlaceholderText('Sök på namn eller landskap')
+const searchBox = () => screen.getByPlaceholderText('Search by name or region')
 
 const visibleTitles = () => screen.queryAllByRole('link').map((link) => link.textContent)
 
@@ -78,7 +78,7 @@ describe('GuidesView', () => {
       renderView()
 
       const link = await screen.findByRole('link', { name: 'Kebnekaise' })
-      expect(link).toHaveAttribute('href', '/guider/kebnekaise')
+      expect(link).toHaveAttribute('href', '/guides/kebnekaise')
       expect(visibleTitles()).toEqual(['Kebnekaise', 'Kungsleden', 'Sarek'])
     })
 

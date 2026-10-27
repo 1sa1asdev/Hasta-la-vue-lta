@@ -35,16 +35,16 @@ describe('HomeView', () => {
     const fetchMock = stubFetch({
       data: {
         guides,
-        tours: [{ id: '7', title: 'Toppturen', distanceM: 12345 }],
+        tours: [{ id: '7', title: 'Summit tour', distanceM: 12345 }],
       },
     })
 
     renderView()
 
-    expect(await screen.findByText('3 guider i 2 landskap.')).toBeInTheDocument()
+    expect(await screen.findByText('3 guides in 2 regions.')).toBeInTheDocument()
     const featuredGuides = await screen.findAllByRole('link', { name: 'Kebnekaise' })
-    expect(featuredGuides[0]).toHaveAttribute('href', '/guider/kebnekaise')
-    expect(screen.getByRole('link', { name: 'Toppturen' })).toHaveAttribute('href', '/turer/7')
+    expect(featuredGuides[0]).toHaveAttribute('href', '/guides/kebnekaise')
+    expect(screen.getByRole('link', { name: 'Summit tour' })).toHaveAttribute('href', '/tours/7')
     expect(screen.getByText('12.3 km')).toBeInTheDocument()
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body)

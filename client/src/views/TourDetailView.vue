@@ -24,15 +24,15 @@ const climb = computed(() => (tour.value ? elevationGain(tour.value.logs) : 0))
 
 <template>
   <p v-if="error" role="alert">{{ error }}</p>
-  <p v-else-if="!tour">Laddar…</p>
+  <p v-else-if="!tour">Loading...</p>
   <div v-else>
     <h1>{{ tour.title }}</h1>
     <p class="muted">
-      {{ distanceKm(tour.distance_m) }} km · {{ tour.logs.length }} mätpunkter ·
-      {{ climb }} höjdmeter
+      {{ distanceKm(tour.distance_m) }} km · {{ tour.logs.length }} log points · {{ climb }} meters
+      climbed
     </p>
     <p v-if="tour.notes">{{ tour.notes }}</p>
-    <h2>Mätpunkter</h2>
+    <h2>Log points</h2>
     <ol class="logs">
       <li v-for="log in tour.logs" :key="log.id">
         {{ formatTime(log.recorded_at) }} · {{ log.elevation_m }} m · {{ log.heart_rate }} slag/min

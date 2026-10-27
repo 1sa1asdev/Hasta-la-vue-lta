@@ -10,7 +10,8 @@
     "test": "vitest run",
     "lint": "eslint .",
     "typecheck": "vue-tsc --noEmit",
-    "format:check": "prettier --check src/"
+    "format:check": "prettier --check src/",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
     "@urql/vue": "^2.1.1",

@@ -62,7 +62,7 @@ The application is then available at <http://localhost:3001> and the API at <htt
 
 The Vue client now uses [`@urql/vue`](./client/src/urql.ts) instead of the previous hand-written `graphql()` fetch helper. The URQL client is registered with Vue in [`client/src/main.js`](./client/src/main.js), sends operations to `/graphql`, and uses the `cacheExchange` and `fetchExchange`. Requests use `POST` because `preferGetMethod` is disabled.
 
-Data loading and the mapping from GraphQL response fields to the client's existing view models live in [`client/src/queries.ts`](./client/src/queries.ts). The former `client/src/graphql.ts` helper and its dedicated test file have been removed.
+The homepage, guide list, and tour list use `useQuery` with generated GraphQL documents. Shared operation documents and mappings to the existing view models live in [`client/src/queries.ts`](./client/src/queries.ts). The former `client/src/graphql.ts` helper and its dedicated test file have been removed.
 
 The client also includes the `graphql` runtime and GraphQL Code Generator CLI/client-preset development dependencies for typed operation generation.
 
@@ -95,6 +95,7 @@ Ask Marcus.
 - `npm test` – Runs Vitest once and exits.
 - `npm run build` – Builds the Vue client for production.
 - `npm run typecheck` – Checks TypeScript types in the client and API.
+- `npm run codegen --workspace=client` – Regenerates GraphQL documents and result types after query or schema changes.
 
 ## Frontend image
 
@@ -246,6 +247,34 @@ docker compose exec postgres psql -U utpost -d utpost \
 docker compose exec postgres psql -U utpost -d utpost \
   -c "SELECT pg_reload_conf();"
 ```
+
+
+
+Output of type check if you try to remove any field 
+"
+> client@0.0.0 codegen
+> graphql-codegen --config codegen.ts
+
+✔ Parse Configuration
+⚠ Generate outputs
+  ❯ Generate to ./src/gql/
+    ✔ Load GraphQL schemas
+    ✔ Load GraphQL documents
+    ✖ GraphQL Document Validation failed with 2 errors;
+        Error 0: Cannot query field "distanceM" on type "Tour".
+          at /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client/src/queries.ts:6:7
+
+      Error 1: Cannot query field "distanceM" on type "Tour".
+          at /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client/src/views/HomeView.vue:13:7
+  ✖ One or more errors occurred, no files were generated. To allow output on errors, set config.allowPartialOutputs=true
+npm error Lifecycle script `codegen` failed with error:
+npm error code 1
+npm error path /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client
+npm error workspace client@0.0.0
+npm error location /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client
+npm error command failed
+npm error command sh -c graphql-codegen --config codegen.ts"
+
 
 ### After DataLoader
 

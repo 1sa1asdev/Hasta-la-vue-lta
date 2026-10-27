@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import type { Guide } from '@utpost/shared'
 import GuidesView from './GuidesView.vue'
 import { silenceConsole, stubFetch, stubFetchNetworkError, stubFetchPending } from '../test/fetch'
+import { createUrqlPlugins } from '../test/urql'
 
 const makeGuide = (overrides: Partial<Guide> = {}): Guide => ({
   id: 1,
@@ -61,6 +62,7 @@ const stubGuides = (items: Guide[]) =>
 const renderView = () =>
   render(GuidesView, {
     global: {
+      plugins: createUrqlPlugins(),
       stubs: { RouterLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } },
     },
   })

@@ -1,44 +1,28 @@
 <script setup lang="ts">
+import { useQuery } from '@urql/vue'
 import GuideCard from '../components/GuideCard.vue'
-import { fetchGuides } from '../queries'
+import { GUIDES_QUERY, toGuide } from '../queries'
 import { filterGuidesByTitle } from '../../lib/guides'
-import { onMounted, ref, watch } from 'vue'
-import type { Guide } from '@utpost/shared'
+import { computed, ref } from 'vue'
 
-const guides = ref<Guide[]>([])
-const loading = ref(true)
-const error = ref<unknown>(null)
+const { data, fetching, error } = useQuery({ query: GUIDES_QUERY })
+const guides = computed(() => (data.value?.guides ?? []).map(toGuide))
 const search = ref('')
-const filteredGuides = ref<Guide[]>([])
-
-onMounted(() => {
-  fetchGuides()
-    .then((guidesResponse) => (guides.value = guidesResponse))
-    .then(() => (filteredGuides.value = filterGuidesByTitle(guides.value, search.value)))
-    .catch((e) => {
-      console.log('Error', e)
-      error.value = e
-    })
-    .finally(() => (loading.value = false))
-})
-
-watch(search, () => {
-  filteredGuides.value = filterGuidesByTitle(guides.value, search.value)
-})
+const filteredGuides = computed(() => filterGuidesByTitle(guides.value, search.value))
 </script>
 
 <template>
   <section class="main-section">
     <input class="search-input" v-model="search" placeholder="Sök på namn eller landskap" />
-    <p v-if="loading === false && filteredGuides.length > 0">
+    <p v-if="!fetching && !error && filteredGuides.length > 0">
       ({{ filteredGuides.length }} / {{ guides.length }})
     </p>
-    <div class="grid" v-if="loading === false && filteredGuides.length > 0">
+    <div class="grid" v-if="!fetching && !error && filteredGuides.length > 0">
       <GuideCard v-for="guide in filteredGuides" :key="guide.id" :guide="guide" />
     </div>
-    <p v-if="loading">Loading...</p>
-    <p v-if="loading === false && error === null && guides.length === 0">No guides</p>
-    <p v-if="error !== null">{{ error }}</p>
+    <p v-if="fetching">Loading...</p>
+    <p v-if="!fetching && !error && guides.length === 0">No guides</p>
+    <p v-if="error">{{ error.message }}</p>
   </section>
 </template>
 

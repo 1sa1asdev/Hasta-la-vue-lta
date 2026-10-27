@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/vue'
 import type { Guide, TourWithRelations, User } from '@utpost/shared'
 import ToursView from './ToursView.vue'
 import { silenceConsole, stubFetch, stubFetchNetworkError, stubFetchPending } from '../test/fetch'
+import { createUrqlPlugins } from '../test/urql'
 
 const user: User = {
   id: 1,
@@ -69,6 +70,7 @@ const stubTours = (items: TourWithRelations[]) =>
 const renderView = () =>
   render(ToursView, {
     global: {
+      plugins: createUrqlPlugins(),
       stubs: { RouterLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } },
     },
   })

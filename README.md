@@ -109,15 +109,62 @@ Nginx also proxies `/api/` and `/graphql` to the `api` service.
 
 Measured with `docker images` on 2026-10-19.
 
-## M5 — GraphQL N+1 Query Measurement
+## Mätning före/efter (M5)
 
-### Before DataLoader
+This section collects the M5 evidence (B1–B7). Details about the test suite are in [docs/testing.md](docs/testing.md), and details about the CI jobs are in [docs/pipeline.md](docs/pipeline.md).
+
+| Query | Database queries before | Database queries after |
+| --- | ---: | ---: |
+| `Tours` (`tours(limit: 50)` with `user`, `guide`, `photoCount`) | 138 | 4 |
+
+### B1 urql cache behavior
+
+Going Tours → Guides → Tours showed only 2 `POST /graphql` requests in the Network tab: one `Tours` and one `Guides` on the first visit to each view. Returning to Tours sent no new request, because `cacheExchange` answered the same query with the same variables from memory. Reloading the page empties the cache.
+
+### B2 Codegen catches schema changes
+
+On the throwaway branch `tmp/remove-distanceM` (not merged, deleted afterwards), `distanceM` was removed from the `Tour` type in `api/src/graphql/schema.js`. `npm run typecheck` runs codegen first, and it stopped with exit code 1 because two client documents still query the field:
+
+```text
+✖ Generate [FAILED: GraphQL Document Validation failed with 2 errors;
+  Error 0: Cannot query field "distanceM" on type "Tour".
+    at client/src/queries.ts:6:7
+
+Error 1: Cannot query field "distanceM" on type "Tour".
+    at client/src/views/HomeView.vue:13:7]
+✖ One or more errors occurred, no files were generated. To allow output on errors, set config.allowPartialOutputs=true
+npm error Lifecycle script `codegen` failed with error:
+npm error code 1
+npm error workspace client@0.0.0
+npm error command failed
+```
+
+Run on 2026-10-27. Absolute local paths have been shortened to repository-relative paths.
+
+To reproduce: create a throwaway branch, remove a field from `schema.js` that a view uses, run `npm run typecheck`, then delete the branch.
+
+### B3 Views using `useQuery`
+
+| View | Generated document | Query |
+| --- | --- | --- |
+| `client/src/views/ToursView.vue` | `TOURS_QUERY` in `client/src/queries.ts` | `Tours($limit: Int)` |
+| `client/src/views/GuidesView.vue` | `GUIDES_QUERY` in `client/src/queries.ts` | `Guides` |
+
+`HomeView.vue` also uses `useQuery`, with `HomeDocument`. Each view has a test that mocks `@urql/vue` (`*View.useQuery.test.ts`).
+
+Last lines of `npm test` (2026-10-27):
+
+```text
+ Test Files  15 passed (15)
+      Tests  82 passed | 1 todo (83)
+   Duration  34.52s
+```
+
+### B4 DataLoader: database queries before and after
 
 #### Test query
 
-The baseline query fetches the 50 most recent tours, including each tour's `user`, `guide`, and `photoCount` fields.
-
-Use this GraphQL query:
+The measurement query fetches the 50 most recent tours, including each tour's `user`, `guide`, and `photoCount` fields.
 
 ```graphql
 query Tours($limit: Int) {
@@ -137,7 +184,7 @@ query Tours($limit: Int) {
 }
 ```
 
-Use the variable:
+Variables:
 
 ```json
 {
@@ -151,12 +198,11 @@ Use the variable:
 - Seed the database using `docker compose exec api npm run seed` when running the application in Docker.
 - For local application development, run `npm run seed` with the required environment variables loaded.
 - The recorded dataset contains 50 tours in the query result, of which 37 have a non-null `guide_id`.
-- Use the same seeded dataset and query when comparing the baseline with the DataLoader implementation.
-- This baseline represents the implementation before DataLoader is introduced.
+- Use the same seeded dataset and query for both the before and after measurements.
 
-#### Enable PostgreSQL statement logging
+#### How to count the SQL queries
 
-Temporarily enable statement logging to inspect the SQL queries:
+Temporarily enable statement logging:
 
 ```bash
 docker compose exec postgres psql -U utpost -d utpost \
@@ -165,8 +211,6 @@ docker compose exec postgres psql -U utpost -d utpost \
 docker compose exec postgres psql -U utpost -d utpost \
   -c "SELECT pg_reload_conf();"
 ```
-
-#### Observed SQL query count
 
 Save the PostgreSQL logs before making the request:
 
@@ -222,7 +266,17 @@ printf "Photo counts: "
 grep -c 'FROM photos' /tmp/graphql-one-run.log
 ```
 
-The observed query count was:
+After collecting the logs, restore the default setting:
+
+```bash
+docker compose exec postgres psql -U utpost -d utpost \
+  -c "ALTER SYSTEM RESET log_statement;"
+
+docker compose exec postgres psql -U utpost -d utpost \
+  -c "SELECT pg_reload_conf();"
+```
+
+#### Before DataLoader
 
 | SQL operation | Observed queries |
 |---|---:|
@@ -234,51 +288,11 @@ The observed query count was:
 
 Calculation: `1 + 50 + 37 + 50 = 138`.
 
-The baseline is **138 SQL queries for one `Tours(limit: 50)` GraphQL request** returning 50 tours. The repeated per-tour lookups for users, guides, and photo counts demonstrate the N+1 query problem.
+The repeated per-tour lookups for users, guides, and photo counts demonstrate the N+1 query problem.
 
-#### Disable PostgreSQL statement logging
+#### After DataLoader (Issue #87)
 
-After collecting the logs, restore the default setting:
-
-```bash
-docker compose exec postgres psql -U utpost -d utpost \
-  -c "ALTER SYSTEM RESET log_statement;"
-
-docker compose exec postgres psql -U utpost -d utpost \
-  -c "SELECT pg_reload_conf();"
-```
-
-
-
-Output of type check if you try to remove any field 
-"
-> client@0.0.0 codegen
-> graphql-codegen --config codegen.ts
-
-✔ Parse Configuration
-⚠ Generate outputs
-  ❯ Generate to ./src/gql/
-    ✔ Load GraphQL schemas
-    ✔ Load GraphQL documents
-    ✖ GraphQL Document Validation failed with 2 errors;
-        Error 0: Cannot query field "distanceM" on type "Tour".
-          at /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client/src/queries.ts:6:7
-
-      Error 1: Cannot query field "distanceM" on type "Tour".
-          at /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client/src/views/HomeView.vue:13:7
-  ✖ One or more errors occurred, no files were generated. To allow output on errors, set config.allowPartialOutputs=true
-npm error Lifecycle script `codegen` failed with error:
-npm error code 1
-npm error path /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client
-npm error workspace client@0.0.0
-npm error location /Users/anastasiiaskachenko/utpost-proj/Hasta-la-vue-lta/client
-npm error command failed
-npm error command sh -c graphql-codegen --config codegen.ts"
-
-
-### After DataLoader
-
-The same `Tours(limit: 50)` query was run again after seeding with `docker compose exec api npm run seed`. The response returned 50 tours. `extensions.databasfragor` was **4**.
+The same query was run again after seeding with `docker compose exec api npm run seed`. The response returned 50 tours, and `extensions.databasfragor` was **4**.
 
 | SQL operation | Observed queries |
 |---|---:|
@@ -290,23 +304,45 @@ The same `Tours(limit: 50)` query was run again after seeding with `docker compo
 
 Calculation: `1 + 1 + 1 + 1 = 4`.
 
-The user, guide, and photo lookups are each one `WHERE ... = ANY(...)` query for the whole list. The baseline for this query was **138** SQL queries. DataLoader reduced that to **4**.
+The user, guide, and photo lookups each run as one `WHERE ... = ANY(...)` query for the whole list. DataLoader reduced the SQL queries from **138 to 4**, about **97.1%** fewer.
 
-## Mätning före/efter (M5)
+The API exposes the query count through `extensions.databasfragor` in the GraphQL response.
 
-Issue #91 – API Integration Tests with Vitest.
+### B5 Migration to MongoDB
 
-The N+1 measurement uses the GraphQL query `tours(limit: 50)` with the `user`, `guide`, and `photoCount` fields.
+Run with `docker compose exec api npm run migrate:logs` on 2026-10-27, after seeding.
 
-The following results were documented in Issue #87's DataLoader implementation:
+First run:
 
-| Measurement | Number of database queries |
-| --- | --- |
-| Before the DataLoader fix | 138 |
-| After the DataLoader fix | 4 |
+```text
+> @utpost/api@1.4.2 migrate:logs
+> node src/db/migrate-logs.js
 
-DataLoader reduced the number of SQL queries from **138 to 4**, a reduction of approximately **97.1%**.
+Tours:  Postgres 200, MongoDB 200
+Points: Postgres 5861, MongoDB 5861
+Verification OK
+```
 
-The API exposes the database query count through `extensions.databasfragor` in the GraphQL response.
+Second run:
 
-Issue #91 adds a Vitest integration test using `yoga.fetch` against the real database to verify that the query count remains low and prevent N+1 regressions.
+```text
+> @utpost/api@1.4.2 migrate:logs
+> node src/db/migrate-logs.js
+
+Tours:  Postgres 200, MongoDB 200
+Points: Postgres 5861, MongoDB 5861
+Verification OK
+```
+
+The second run creates no duplicates. Each tour is written with `replaceOne` and upsert on `tour_id`, and there is a unique index on `tour_id`. The script counts the documents against the tours, and the embedded log points against the rows in `tour_logs`. If the counts don't match, it exits with an error code.
+
+### B6 Integration tests (Issue #91)
+
+The integration tests in `api/src/graphql/server.test.js` use `yoga.fetch` against the real databases. The test count and duration are documented in [docs/testing.md](docs/testing.md#m5--api-integration-tests-issue-91).
+
+N+1 regression test: **`begränsar antalet databasfrågor med DataLoader`**. It asserts that `extensions.databasfragor` is at most 4.
+
+| Condition | `extensions.databasfragor` | Test result |
+| --- | ---: | --- |
+| DataLoader enabled | 4 | passed |
+| `user` loader disconnected (one query per user ID) | 15 | failed: `expected 15 to be less than or equal to 4` |

@@ -78,20 +78,40 @@ The tests use GraphQL Yoga through `yoga.fetch` and cover:
 
 ### Local test result
 
-Date: 2026-10-25
+Date: 2026-10-27
 
 Command: `npm run test:api`
 
+```text
+ ✓ src/graphql/server.test.js (7 tests) 147ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Duration  2.75s
+```
+
 - Test files: 1 passed
 - Tests: 7 passed, 0 failed
-- Test execution time: 1.56 seconds
-- Total duration: 3.96 seconds
+- Test execution time: 147 ms
+- Total duration: 2.75 seconds
 
-PostgreSQL and MongoDB were running through Docker Compose. The database connection environment variables were supplied when running the command.
+PostgreSQL and MongoDB were running through Docker Compose, seeded with `npm run seed` and migrated with `npm run migrate:logs`.
+
+To reproduce locally, start the databases and run the tests with the values from `environment.example`:
+
+```bash
+docker compose up -d postgres mongo
+cp environment.example .env
+npm run seed
+npm run migrate:logs
+npm run test:api
+```
+
+The API loads the root `.env` automatically. In CI the databases run as services on `localhost:5432` and `localhost:27017` instead, see [pipeline.md](pipeline.md).
 
 ### N+1 regression test
 
-The N+1 regression test requests 50 tours with their `user`, `guide`, and `photoCount` fields using `yoga.fetch`.
+The N+1 regression test is named `begränsar antalet databasfrågor med DataLoader`. It requests 50 tours with their `user`, `guide`, and `photoCount` fields using `yoga.fetch`.
 
 The test verifies that `extensions.databasfragor` is a number and that the SQL query count does not exceed 4.
 

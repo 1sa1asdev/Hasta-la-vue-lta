@@ -10,16 +10,21 @@
     "test": "vitest run",
     "lint": "eslint .",
     "typecheck": "vue-tsc --noEmit",
-    "format:check": "prettier --check src/"
+    "format:check": "prettier --check src/",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
+    "@urql/vue": "^2.1.1",
     "@utpost/shared": "^0.0.1",
+    "graphql": "^17.0.2",
     "pinia": "^4.0.3",
     "vue": "^3.5.42",
     "vue-router": "^5.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@graphql-codegen/cli": "^7.4.6",
+    "@graphql-codegen/client-preset": "^6.2.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/user-event": "^14.6.7",
     "@testing-library/vue": "^8.1.0",

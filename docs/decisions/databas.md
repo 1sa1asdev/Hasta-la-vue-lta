@@ -87,6 +87,28 @@ A tour with no guide has `"guide": null`. A tour with no points has `"logs": []`
 3. `/api/tours`, `/api/tours/latest`, and `/api/tours/:id` read from MongoDB. The list omits `logs`. Creating and deleting a tour writes to MongoDB.
 4. When the sample check is green, `tour_logs` is emptied. The table is dropped only after the team has seen that no route reads it anymore. The `tours` and `photos` rows for migrated data follow the same path.
 
+## Log migration (M5 #3, issue #88)
+
+`npm run migrate:logs` copies every tour and its `tour_logs` rows from Postgres into MongoDB (`api/src/db/migrate-logs.js`). It upserts on `tour_id` (unique index), so it can be run repeatedly without duplicates. It only reads Postgres; `tour_logs` is not emptied. GraphQL `Tour.logs` reads the embedded logs from MongoDB through a DataLoader (one batched query per request).
+
+After writing, the script compares the number of tours and the sum of embedded points with Postgres. A mismatch prints `Verification FAILED` and exits with status 1. `npm run migrate:logs -- --verify-only` runs only the check.
+
+Output from running the migration twice against the seeded Compose databases:
+
+```
+# run 1
+Tours:  Postgres 200, MongoDB 200
+Points: Postgres 6007, MongoDB 6007
+Verification OK
+
+# run 2
+Tours:  Postgres 200, MongoDB 200
+Points: Postgres 6007, MongoDB 6007
+Verification OK
+```
+
+Failure check: after deleting one MongoDB document, `--verify-only` printed `Tours: Postgres 200, MongoDB 199`, `Points: Postgres 6007, MongoDB 5980`, `Verification FAILED` and exited with status 1. Re-running the migration restored the counts.
+
 ## Alternatives we compared
 
 **Keep everything in Postgres, with a `jsonb` column for the track.** One database, one backup, no new connection strings. The list can stop sending the track. We would not be practicing the document model M3 asks for, and the N+1 queries against users and guides remain unless we rewrite them anyway.

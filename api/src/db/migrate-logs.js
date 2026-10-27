@@ -1,14 +1,14 @@
-import { pool } from "./client.js";
-import { mongo, toursCollection } from "./mongo.js";
+import { pool } from './client.js';
+import { mongo, toursCollection } from './mongo.js';
 
-const toLogDoc = (log) => ({
-  id: log.id,
-  t: log.recorded_at,
-  lat: log.lat,
-  lon: log.lon,
-  elevation_m: log.elevation_m,
-  heart_rate: log.heart_rate,
-  note: log.note,
+const toLogDoc = (l) => ({
+  id: l.id,
+  t: l.recorded_at,
+  lat: l.lat,
+  lon: l.lon,
+  elevation_m: l.elevation_m,
+  heart_rate: l.heart_rate,
+  note: l.note,
 });
 
 const toTourDoc = (tour, logs) => ({
@@ -24,9 +24,9 @@ const toTourDoc = (tour, logs) => ({
 });
 
 const migrate = async () => {
-  const tours = (await pool.query("select * from tours order by id")).rows;
+  const tours = (await pool.query('select * from tours order by id')).rows;
   const logRows = (
-    await pool.query("select * from tour_logs order by tour_id, recorded_at")
+    await pool.query('select * from tour_logs order by tour_id, recorded_at')
   ).rows;
 
   const logsByTour = new Map();
@@ -53,33 +53,31 @@ const migrate = async () => {
 
 const verify = async () => {
   const pgTours = Number(
-    (await pool.query("select count(*) from tours")).rows[0].count,
+    (await pool.query('select count(*) from tours')).rows[0].count,
   );
   const pgLogs = Number(
-    (await pool.query("select count(*) from tour_logs")).rows[0].count,
+    (await pool.query('select count(*) from tour_logs')).rows[0].count,
   );
 
   const collection = toursCollection();
   const mongoTours = await collection.countDocuments();
-  const [aggregate] = await collection
-    .aggregate([
-      { $group: { _id: null, points: { $sum: { $size: "$logs" } } } },
-    ])
+  const [agg] = await collection
+    .aggregate([{ $group: { _id: null, points: { $sum: { $size: '$logs' } } } }])
     .toArray();
-  const mongoLogs = aggregate?.points ?? 0;
+  const mongoLogs = agg?.points ?? 0;
 
   console.log(`Tours:  Postgres ${pgTours}, MongoDB ${mongoTours}`);
   console.log(`Points: Postgres ${pgLogs}, MongoDB ${mongoLogs}`);
 
   const ok = pgTours === mongoTours && pgLogs === mongoLogs;
-  console.log(ok ? "Verification OK" : "Verification FAILED");
+  console.log(ok ? 'Verification OK' : 'Verification FAILED');
   return ok;
 };
 
 const run = async () => {
   await mongo.connect();
   try {
-    if (!process.argv.includes("--verify-only")) await migrate();
+    if (!process.argv.includes('--verify-only')) await migrate();
     if (!(await verify())) process.exitCode = 1;
   } finally {
     await mongo.close();
@@ -87,7 +85,7 @@ const run = async () => {
   }
 };
 
-run().catch((error) => {
-  console.error(error.message);
+run().catch((err) => {
+  console.error(err.message);
   process.exit(1);
 });

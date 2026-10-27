@@ -3,10 +3,11 @@ import { vi } from 'vitest'
 let resolvePendingFetch: (() => void) | null = null
 
 // API:et svarar med `body` och given status.
-export const stubFetch = (body: unknown, status = 200) => {
+export const stubFetch = (body: unknown, status = 200, statusText = '') => {
   const fetchMock = vi.fn().mockResolvedValue(
     new Response(JSON.stringify(body), {
       status,
+      statusText,
       headers: { 'Content-Type': 'application/json' },
     }),
   )

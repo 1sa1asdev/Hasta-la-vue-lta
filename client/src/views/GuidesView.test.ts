@@ -103,6 +103,16 @@ describe('GuidesView', () => {
       expect(await screen.findByText('(3 / 3)')).toBeInTheDocument()
     })
 
+    it('sends the Guides query without variables', async () => {
+      const fetchMock = stubGuides(guides)
+      renderView()
+
+      await screen.findByRole('link', { name: 'Kebnekaise' })
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+      expect(body.query).toContain('query Guides')
+      expect(body.variables ?? {}).toEqual({})
+    })
+
     it('hides the loading text once the guides are shown', async () => {
       stubGuides(guides)
       renderView()
@@ -139,10 +149,10 @@ describe('GuidesView', () => {
   describe('when the API fails', () => {
     it('shows the status code when the API answers with an error', async () => {
       silenceConsole()
-      stubFetch({ error: 'Internal' }, 500)
+      stubFetch({ error: 'Internal' }, 500, 'Internal Server Error')
       renderView()
 
-      expect(await screen.findByText(/No Content/)).toBeInTheDocument()
+      expect(await screen.findByText(/Internal Server Error/)).toBeInTheDocument()
       expect(screen.queryAllByRole('link')).toHaveLength(0)
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })

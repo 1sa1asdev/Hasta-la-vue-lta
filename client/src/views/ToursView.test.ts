@@ -116,6 +116,16 @@ describe('ToursView', () => {
       expect(await screen.findByRole('cell', { name: '12.3 km' })).toBeInTheDocument()
     })
 
+    it('asks for at most 50 tours', async () => {
+      const fetchMock = stubTours([makeTour()])
+      renderView()
+
+      await screen.findByRole('table')
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+      expect(body.query).toContain('query Tours')
+      expect(body.variables).toEqual({ limit: 50 })
+    })
+
     it('shows the number of photos', async () => {
       stubTours([makeTour({ photos: [photo(1), photo(2), photo(3)] })])
       renderView()
@@ -158,10 +168,10 @@ describe('ToursView', () => {
   describe('when the API fails', () => {
     it('shows the status code when the API answers with an error', async () => {
       silenceConsole()
-      stubFetch({ error: 'Internal' }, 500)
+      stubFetch({ error: 'Internal' }, 500, 'Internal Server Error')
       renderView()
 
-      expect(await screen.findByText(/No Content/)).toBeInTheDocument()
+      expect(await screen.findByText(/Internal Server Error/)).toBeInTheDocument()
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })

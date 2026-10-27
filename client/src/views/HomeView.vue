@@ -29,7 +29,8 @@ const regionCount = computed(
 
 <template>
   <p v-if="error" role="alert">Kunde inte hämta startsidan: {{ error.message }}</p>
-  <p v-else-if="fetching || !data">Laddar…</p>
+  <p v-else-if="fetching">Laddar…</p>
+  <p v-else-if="!data">Ingen data.</p>
   <div v-else>
     <section class="hero">
       <h1>Hitta din nästa tur</h1>

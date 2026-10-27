@@ -7,7 +7,7 @@ import { toursRouter } from './routes/tours.js';
 import { photosRouter } from './routes/photos.js';
 import { pool } from './db/client.js';
 import { mongo } from './db/mongo.js';
-import { yoga } from './graphql/server.js'; //add Graphql yoga server
+import { yoga } from './graphql/server.js';
 
 const app = express();
 
@@ -26,7 +26,7 @@ app.get('/api/health', async (req, res) => {
   };
   const postgres = await check(() => pool.query('select 1'));
   const mongodb = await check(async () => {
-    await mongo.connect(); // gör inget om klienten redan är ansluten
+    await mongo.connect(); 
     await mongo.db().command({ ping: 1 });
   });
   const ok = postgres === 'ok' && mongodb === 'ok';

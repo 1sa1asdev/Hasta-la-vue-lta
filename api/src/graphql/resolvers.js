@@ -61,7 +61,7 @@ export const resolvers = {
   },
 
   TourLog: {
-    recordedAt: (log) => log.recorded_at,
+    recordedAt: (log) => log.t,
     elevationM: (log) => log.elevation_m,
     heartRate: (log) => log.heart_rate,
   },

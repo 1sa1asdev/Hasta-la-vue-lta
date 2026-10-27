@@ -1,33 +1,11 @@
-// Fetches the guide list and the tour table from GraphQL.
-// Renames the fields so the Vue pages keep the data shape they already use.
+// Generated GraphQL documents and mappings for the Vue views.
 
 import type { Guide } from '@utpost/shared'
 import type { TourListItem } from '../lib/tours'
-import { graphql } from './graphql'
+import { graphql } from './gql'
+import type { GuidesQuery, ToursQuery } from './gql/graphql'
 
-interface GraphQLGuide {
-  id: string
-  slug: string
-  title: string
-  region: string
-  difficulty: string
-  lengthKm: number
-  bodyHtml: string
-  heroImage: string | null
-  published: boolean
-  updatedAt: string
-}
-
-interface GraphQLTour {
-  id: string
-  title: string
-  distanceM: number
-  photoCount: number
-  user: { displayName: string } | null
-  guide: { title: string } | null
-}
-
-const GUIDES_QUERY = /* GraphQL */ `
+export const GUIDES_QUERY = graphql(/* GraphQL */ `
   query Guides {
     guides {
       id
@@ -42,9 +20,9 @@ const GUIDES_QUERY = /* GraphQL */ `
       updatedAt
     }
   }
-`
+`)
 
-const TOURS_QUERY = /* GraphQL */ `
+export const TOURS_QUERY = graphql(/* GraphQL */ `
   query Tours($limit: Int) {
     tours(limit: $limit) {
       id
@@ -59,9 +37,9 @@ const TOURS_QUERY = /* GraphQL */ `
       }
     }
   }
-`
+`)
 
-const toGuide = (guide: GraphQLGuide): Guide => ({
+export const toGuide = (guide: GuidesQuery['guides'][number]): Guide => ({
   id: Number(guide.id),
   slug: guide.slug,
   title: guide.title,
@@ -75,7 +53,7 @@ const toGuide = (guide: GraphQLGuide): Guide => ({
   updated_at: guide.updatedAt,
 })
 
-const toTourListItem = (tour: GraphQLTour): TourListItem => ({
+export const toTourListItem = (tour: ToursQuery['tours'][number]): TourListItem => ({
   id: Number(tour.id),
   title: tour.title,
   distance_m: tour.distanceM,
@@ -83,15 +61,3 @@ const toTourListItem = (tour: GraphQLTour): TourListItem => ({
   guide: tour.guide ? { title: tour.guide.title } : null,
   photoCount: tour.photoCount,
 })
-
-/** The guide list. Search stays in the browser; the API has no search argument. */
-export const fetchGuides = async (): Promise<Guide[]> => {
-  const data = await graphql<{ guides: GraphQLGuide[] }>(GUIDES_QUERY)
-  return data.guides.map(toGuide)
-}
-
-/** The tour table. Same 50-row cap as the REST list, without photo or log rows. */
-export const fetchTours = async (): Promise<TourListItem[]> => {
-  const data = await graphql<{ tours: GraphQLTour[] }>(TOURS_QUERY, { limit: 50 })
-  return data.tours.map(toTourListItem)
-}

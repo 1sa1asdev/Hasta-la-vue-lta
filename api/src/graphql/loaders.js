@@ -1,4 +1,5 @@
 import DataLoader from 'dataloader';
+import { mongo, toursCollection } from '../db/mongo.js';
 
 const idsOf = (keys) => keys.map((id) => Number(id));
 
@@ -44,12 +45,11 @@ export const createLoaders = (db) => ({
   }),
 
   logs: new DataLoader(async (tourIds) => {
-    const result = await db.query(
-      `SELECT * FROM tour_logs
-       WHERE tour_id = ANY($1::int[])
-       ORDER BY recorded_at`,
-      [idsOf(tourIds)],
-    );
-    return groupByTourId(tourIds, result.rows);
+    await mongo.connect(); // no-op if already connected
+    const docs = await toursCollection()
+      .find({ tour_id: { $in: idsOf(tourIds) } }, { projection: { tour_id: 1, logs: 1 } })
+      .toArray();
+    const byTour = new Map(docs.map((doc) => [doc.tour_id, doc.logs ?? []]));
+    return idsOf(tourIds).map((id) => byTour.get(id) ?? []);
   }),
 });

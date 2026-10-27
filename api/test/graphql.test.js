@@ -3,6 +3,7 @@ import { afterEach, before, test } from 'node:test';
 import jwt from 'jsonwebtoken';
 import { config } from '../src/config.js';
 import { pool } from '../src/db/client.js';
+import { mongo } from '../src/db/mongo.js';
 import { yoga } from '../src/graphql/server.js';
 
 const jwtSecret = 'graphql-test-secret';
@@ -55,12 +56,17 @@ const json = async (response) => {
   return response.json();
 };
 
+const originalMongoConnect = mongo.connect;
+const originalMongoDb = mongo.db;
+
 before(() => {
   config.jwtSecret = jwtSecret;
 });
 
 afterEach(() => {
   pool.query = originalQuery;
+  mongo.connect = originalMongoConnect;
+  mongo.db = originalMongoDb;
 });
 
 test('returns guides, a guide, tours with a limit, and a tour', async () => {
@@ -236,7 +242,7 @@ test('counts photos for a tour from the batched photos loader', async () => {
   assert.equal(result.data.tour.photoCount, 3);
 });
 
-test('loads photos and logs in one batch and returns empty lists when none exist', async () => {
+test('loads photos (Postgres) and logs (MongoDB) in one batch each and returns empty lists when none exist', async () => {
   const secondTour = { ...tour, id: 8 };
   const queries = [];
   pool.query = async (sql, params) => {
@@ -255,36 +261,30 @@ test('loads photos and logs in one batch and returns empty lists when none exist
         }],
       };
     }
-    if (sql.includes('FROM tour_logs')) {
-      assert.match(sql, /ORDER BY recorded_at/);
-      assert.deepEqual(params, [[tour.id, secondTour.id]]);
-      return {
-        rows: [
-          {
-            id: 11,
-            tour_id: tour.id,
-            recorded_at: '2026-01-03T01:00:00.000Z',
-            lat: 61.1,
-            lon: 14.2,
-            elevation_m: 120,
-            heart_rate: 110,
-            note: 'Start',
-          },
-          {
-            id: 12,
-            tour_id: tour.id,
-            recorded_at: '2026-01-03T02:00:00.000Z',
-            lat: 61.2,
-            lon: 14.3,
-            elevation_m: null,
-            heart_rate: null,
-            note: null,
-          },
-        ],
-      };
-    }
     throw new Error(`Unexpected query: ${sql}`);
   };
+
+  const findCalls = [];
+  mongo.connect = async () => {};
+  mongo.db = () => ({
+    collection: (name) => {
+      assert.equal(name, 'tours');
+      return {
+        find: (filter) => {
+          findCalls.push(filter);
+          return {
+            toArray: async () => [{
+              tour_id: tour.id,
+              logs: [
+                { id: 11, t: '2026-01-03T01:00:00.000Z', lat: 61.1, lon: 14.2, elevation_m: 120, heart_rate: 110, note: 'Start' },
+                { id: 12, t: '2026-01-03T02:00:00.000Z', lat: 61.2, lon: 14.3, elevation_m: null, heart_rate: null, note: null },
+              ],
+            }],
+          };
+        },
+      };
+    },
+  });
 
   const result = await json(
     await request(`
@@ -301,7 +301,8 @@ test('loads photos and logs in one batch and returns empty lists when none exist
 
   assert.deepEqual(result.errors, undefined);
   assert.equal(queries.filter((sql) => sql.includes('FROM photos')).length, 1);
-  assert.equal(queries.filter((sql) => sql.includes('FROM tour_logs')).length, 1);
+  assert.equal(queries.filter((sql) => sql.includes('FROM tour_logs')).length, 0);
+  assert.deepEqual(findCalls, [{ tour_id: { $in: [tour.id, secondTour.id] } }]);
   assert.deepEqual(result.data.tours[0], {
     id: '7',
     photoCount: 1,

@@ -54,7 +54,15 @@ npm run dev
 PostgresDB is exposed at port :5433 and MongoDB at :27017.
 The API loads the root `.env` automatically when it starts, so the local commands above do not need a separate environment loader. Variables already provided by the shell or container environment take precedence over values in `.env`.
 
-`DATABASE_URL`, `MONGO_URL`, and `JWT_SECRET` are required. The template contains working local defaults. If `MONGO_URL` is omitted, the API stops with a configuration error explaining which variable is missing.
+`DATABASE_URL`, `MONGO_URL`, and `JWT_SECRET` are required. The template contains working local defaults for the database URLs, but `JWT_SECRET` is a placeholder: generate your own with `openssl rand -hex 32`. If `JWT_SECRET` or `MONGO_URL` is omitted, the API stops with a configuration error explaining which variable is missing.
+
+### JWT secret
+
+The API reads `JWT_SECRET` only from the environment; no secret is stored in the source code. An earlier secret was committed in the initial commit and has been retired; `git log --oneline -S 'utpost-super-secret'` shows where it was introduced and removed. Because it stays in Git history, it must never be trusted again.
+
+- **Local development:** your own value in the untracked `.env` (see `environment.example`). Docker Compose falls back to a clearly labelled local-only value if `JWT_SECRET` is not set.
+- **Azure staging:** a newly generated value stored as an Azure Container Apps secret and passed to the API as the `JWT_SECRET` environment variable. The value is not in the repository, documentation, or workflow logs.
+- **CI:** the integration job uses a throwaway test value that is separate from every other environment.
 
 The application is then available at <http://localhost:3001> and the API at <http://localhost:4000>. The Vite dev server proxies `/api` and `/graphql` to the API.
 

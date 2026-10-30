@@ -49,7 +49,8 @@ services:
     environment:
       DATABASE_URL: postgres://utpost:utpost@postgres:5432/utpost
       MONGO_URL: mongodb://utpost:utpost@mongo:27017/utpost?authSource=admin
-      JWT_SECRET: secret
+      # Local-only fallback. Real environments must provide their own JWT_SECRET.
+      JWT_SECRET: ${JWT_SECRET:-local-dev-only-do-not-use-elsewhere}
     expose:
       - "4000"
     depends_on:

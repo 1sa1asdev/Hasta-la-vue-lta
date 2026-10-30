@@ -20,7 +20,7 @@ function logout() {
       <RouterLink to="/tours">Turer</RouterLink>
 
       <template v-if="session.isLoggedIn">
-        <span class="username">{{ session.user?.display_name }}</span>
+        <RouterLink to="/profil" class="username">{{ session.user?.display_name }}</RouterLink>
         <button class="button-logout" @click="logout">Logga ut</button>
       </template>
 

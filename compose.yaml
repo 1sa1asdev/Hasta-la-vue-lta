@@ -44,14 +44,16 @@ services:
 
   api:
     build:
+      args:
+        GIT_SHA: dev
       context: .
       dockerfile: api/Dockerfile
     environment:
       DATABASE_URL: postgres://utpost:utpost@postgres:5432/utpost
       MONGO_URL: mongodb://utpost:utpost@mongo:27017/utpost?authSource=admin
       JWT_SECRET: secret
-    expose:
-      - "4000"
+    ports:
+      - "4000:4000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,6 +64,8 @@ services:
     build:
       context: .
       dockerfile: client/Dockerfile
+    environment:
+      API_UPSTREAM: http://api:4000
     ports:
       - "3001:80"
     depends_on:

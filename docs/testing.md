@@ -97,11 +97,11 @@ Command: `npm run test:api`
 
 PostgreSQL and MongoDB were running through Docker Compose, seeded with `npm run seed` and migrated with `npm run migrate:logs`.
 
-To reproduce locally, start the databases and run the tests with the values from `environment.example`:
+To reproduce locally, start the databases and run the tests with the values from `.env.example`:
 
 ```bash
 docker compose up -d postgres mongo
-cp environment.example .env
+cp .env.example .env
 npm run seed
 npm run migrate:logs
 npm run test:api

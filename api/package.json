@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/index.js",
-    "start": "node src/index.js",
+    "dev": "node --watch src/boot.js",
+    "start": "node src/boot.js",
     "test": "vitest run",
     "test:legacy": "node --test test/graphql.test.js",
     "test:integration": "node --test test/graphql.integration.test.js",
-    "seed": "node src/db/seed.js",
+    "seed": "node src/db/seed-cli.js",
     "migrate:logs": "node src/db/migrate-logs.js",
     "typecheck": "tsc --noEmit",
     "mongo-smoke": "node src/db/mongo-smoke.js"

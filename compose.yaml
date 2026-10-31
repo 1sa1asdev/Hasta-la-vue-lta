@@ -44,6 +44,8 @@ services:
 
   api:
     build:
+      args:
+        GIT_SHA: dev
       context: .
       dockerfile: api/Dockerfile
     environment:
@@ -63,6 +65,8 @@ services:
     build:
       context: .
       dockerfile: client/Dockerfile
+    environment:
+      API_UPSTREAM: http://api:4000
     ports:
       - "3001:80"
     depends_on:

@@ -9,6 +9,12 @@ import { pool } from './db/client.js';
 import { mongo } from './db/mongo.js';
 import { yoga } from './graphql/server.js';
 
+if (!config.jwtSecret) {
+  throw new Error(
+    'JWT_SECRET is not set. Add it to the project .env file or provide it in the process environment.',
+  );
+}
+
 const app = express();
 
 app.use(cors());

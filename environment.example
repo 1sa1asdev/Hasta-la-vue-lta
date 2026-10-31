@@ -1,3 +1,0 @@
-DATABASE_URL=postgresql://utpost:utpost@localhost:5433/utpost
-MONGO_URL=mongodb://utpost:utpost@localhost:27017/utpost?authSource=admin
-JWT_SECRET=secret

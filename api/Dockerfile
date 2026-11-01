@@ -1,5 +1,8 @@
 FROM node:22-alpine
 
+ARG GIT_SHA=dev
+ENV GIT_SHA=$GIT_SHA
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -15,4 +18,4 @@ WORKDIR /app/api
 
 EXPOSE 4000
 
-CMD ["node", "src/index.js"]
+CMD ["node", "src/boot.js"]

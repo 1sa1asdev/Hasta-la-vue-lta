@@ -9,6 +9,12 @@ import { pool } from './db/client.js';
 import { mongo } from './db/mongo.js';
 import { yoga } from './graphql/server.js';
 
+if (!config.jwtSecret) {
+  throw new Error(
+    'JWT_SECRET is not set. Add it to the project .env file or provide it in the process environment.',
+  );
+}
+
 const app = express();
 
 app.use(cors());
@@ -30,7 +36,14 @@ app.get('/api/health', async (req, res) => {
     await mongo.db().command({ ping: 1 });
   });
   const ok = postgres === 'ok' && mongodb === 'ok';
-  res.status(ok ? 200 : 503).json({ ok, version: '1.4.2', postgres, mongodb });
+  //res.status(ok ? 200 : 503).json({ ok, version: '1.4.2', postgres, mongodb });
+  res.status(ok ? 200 : 503).json({
+    ok,
+    version: '1.4.2',
+    sha: config.gitSha,
+    postgres,
+    mongodb,
+  });
 });
 
 app.use('/api/auth', authRouter);
@@ -38,9 +51,10 @@ app.use('/api/guides', guidesRouter);
 app.use('/api/tours', toursRouter);
 app.use('/api/photos', photosRouter);
 
-app.listen(config.port, () => {
-  console.log(`API lyssnar på http://localhost:${config.port}`);
-});
+// app.listen(config.port, () => {
+//   console.log(`API lyssnar på http://localhost:${config.port}`);
+// });
+export { app };
 
 // Servern dog i produktion en fredag när någon skrev in ett ogiltigt id.
 // Det här håller den vid liv. Anropet får inget svar, men resten funkar. /marcus 2022-09-02

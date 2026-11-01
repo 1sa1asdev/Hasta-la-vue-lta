@@ -18,9 +18,18 @@ const bodyHtml = (title, region) => `
 <ul><li>Vindskydd vid halva sträckan</li><li>Ingen service utmed leden</li><li>Mobiltäckning delvis</li></ul>
 <p><em>Senast granskad av redaktionen.</em></p>`.trim();
 
-const run = async () => {
+//const run = async () => {
+//  await createTables();
+//  await pool.query('truncate photos, tour_logs, tours, guides, users restart identity');
+
+export const seedDatabase = async () => {
   await createTables();
-  await pool.query('truncate photos, tour_logs, tours, guides, users restart identity');
+
+  const result = await pool.query('select count(*)::int as count from users');
+  if (result.rows[0].count > 0) {
+    console.log('Databasen innehåller redan data – hoppar över seedning.');
+    return;
+  }
 
   const userIds = [];
   for (let i = 0; i < 12; i++) {
@@ -90,10 +99,10 @@ const run = async () => {
   }
 
   console.log(`Seed klar: 12 användare, 40 guider, 200 turer, ${logCount} loggpunkter.`);
-  await pool.end();
+  //await pool.end();
 };
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// run().catch((err) => {
+// console.error(err);
+//process.exit(1);
+//});

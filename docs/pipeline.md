@@ -84,6 +84,32 @@ Tider från en tidigare grön GitHub Actions-körning, innan Integration-jobbet 
 
 Det längsta enskilda steget var `npm ci` i Bygg-jobbet med 10 sekunder.
 
+## Borttagning av den gamla React-klienten (M6 #3)
+
+Den gamla React-klienten i `web/` är borttagen, så bara Vue-klienten i `client/` underhålls, testas och byggs.
+
+### Vyer som flyttades till Vue
+
+`web/` hade sju sidor. Fyra fanns redan i Vue (startsida, guider, turer, inloggning). Tre saknades eller var inte nåbara och portades före borttagningen:
+
+| React-sida (`web/`)   | Vue-vy                                | Åtgärd                                                                 |
+| --------------------- | ------------------------------------- | ---------------------------------------------------------------------- |
+| `GuideDetail.jsx`     | `GuideDetailView.vue`, `/guider/:slug` | Ny vy. Guidens HTML saneras med DOMPurify (teknisk skuld 3).          |
+| `TourDetail.jsx`      | `TourDetailView.vue`, `/turer/:id`    | Vyn fanns men saknade route. Länkar från startsidan och turlistan gick ingenstans. |
+| `Profile.jsx`         | `ProfileView.vue`, `/profil`          | Ny vy som använder Pinia-storen. Utloggning går via routern.          |
+
+### `npm ci` före och efter
+
+Före: senaste gröna körningen på `main` (`01fdcce`, 2026-10-27, run 40572123823). Efter: första körningen på PR:en som tar bort `web/`.
+
+| Jobb        | Före | Efter |
+| ----------- | ---: | ----: |
+| Kvalitet    |  9 s |   _att fylla i från CI_ |
+| Bygg        | 10 s |   _att fylla i från CI_ |
+| Integration |  4 s |   _att fylla i från CI_ |
+
+Lokalt tog `npm ci` 6 s efter borttagningen (823 paket). Det är inte jämförbart med CI-tiderna och används inte som "efter"-värde.
+
 ## Docker images och publicering
 
 Image-jobbet körs efter att Kvalitet, Bygg och Integration har lyckats. Det bygger Docker-images för API:t (`api/Dockerfile`) och klienten (`client/Dockerfile`).

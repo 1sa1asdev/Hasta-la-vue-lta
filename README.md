@@ -46,7 +46,7 @@ Requires Node.js 22.18.0 or later.
 npm install
 docker compose up -d postgres mongo
 
-cp environment.example .env
+cp .env.example .env
 npm run seed
 npm run dev
 ```

@@ -3,6 +3,8 @@ import { createTables } from './db/migrate.js';
 import { seedDatabase } from './db/seed.js';
 import { app } from './index.js';
 import { config } from './config.js';
+import { mongo } from './db/mongo.js';
+import { migrateLogs, verifyLogs } from './db/migrate-logs.js';
 
 const boot = async () => {
   try {
@@ -16,7 +18,16 @@ const boot = async () => {
       console.log('boot: tom databas – seedar');
       await seedDatabase();
     }
-
+        await mongo.connect();
+    try {
+      await migrateLogs();
+      const verified = await verifyLogs();
+      if (!verified) {
+        throw new Error('Postgres-to-MongoDB verification failed');
+      }
+    } finally {
+      await mongo.close();
+    }
     // app.listen(4000, () => {
     app.listen(config.port, () => {
       console.log(`API lyssnar på http://localhost:${config.port}`);

@@ -100,13 +100,18 @@ Den gamla React-klienten i `web/` är borttagen, så bara Vue-klienten i `client
 
 ### `npm ci` före och efter
 
-Före: senaste gröna körningen på `main` (`01fdcce`, 2026-10-27, run 40572123823). Efter: första körningen på PR:en som tar bort `web/`.
+Tiderna är steget "Install dependencies" (`npm ci`) i varje jobb.
+
+- **Före:** senaste gröna körningen på `main` (`01fdcce`, 2026-10-27), [run 40572123823](https://github.com/1sa1asdev/Hasta-la-vue-lta/actions/runs/40572123823).
+- **Efter:** senaste körningen på PR #114 (`e36ffcc`), [run 41317466955](https://github.com/1sa1asdev/Hasta-la-vue-lta/actions/runs/41317466955).
 
 | Jobb        | Före | Efter |
 | ----------- | ---: | ----: |
-| Kvalitet    |  9 s |   _att fylla i från CI_ |
-| Bygg        | 10 s |   _att fylla i från CI_ |
-| Integration |  4 s |   _att fylla i från CI_ |
+| Kvalitet    |  9 s |   9 s |
+| Bygg        | 10 s |   5 s |
+| Integration |  4 s |   7 s |
+
+Den första körningen på PR:en ([run 41315344670](https://github.com/1sa1asdev/Hasta-la-vue-lta/actions/runs/41315344670), `ad2b0bf`) tog 45 s, 32 s och 28 s. Det var troligen en kall npm-cache efter ändringen i `package-lock.json` (inte verifierat i loggarna), så den används inte som "efter"-värde. Att ta bort `web/` gav ingen mätbar skillnad i `npm ci`-tid på CI.
 
 Lokalt tog `npm ci` 6 s efter borttagningen (823 paket). Det är inte jämförbart med CI-tiderna och används inte som "efter"-värde.
 

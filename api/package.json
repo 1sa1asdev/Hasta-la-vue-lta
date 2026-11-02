@@ -10,7 +10,7 @@
     "test:legacy": "node --env-file=.env --test test/graphql.test.js",
     "test:integration": "node --env-file=.env --test test/graphql.integration.test.js",
     "seed": "node src/db/seed-cli.js",
-    "migrate:logs": "node --env-file=.env src/db/migrate-logs.js",
+    "migrate:logs": "node src/db/migrate-logs.js",
     "typecheck": "tsc --noEmit",
     "mongo-smoke": "node src/db/mongo-smoke.js"
   },

@@ -109,6 +109,16 @@ Verification OK
 
 Failure check: after deleting one MongoDB document, `--verify-only` printed `Tours: Postgres 200, MongoDB 199`, `Points: Postgres 6007, MongoDB 5980`, `Verification FAILED` and exited with status 1. Re-running the migration restored the counts.
 
+## Decision: keep the `tour_logs` table (M6 #3, issue #106)
+
+Removing the legacy React client in `web/` does not make `tour_logs` obsolete, so the table stays for now. Checked in the code on this branch:
+
+- `api/src/routes/tours.js` still reads `tour_logs` for `GET /api/tours` and `GET /api/tours/:id`, and deletes from it when a tour is deleted. The Vue tour detail page calls `GET /api/tours/:id`, so it depends on this.
+- `api/src/db/seed.js` writes to it and `api/src/db/migrate-logs.js` uses it as the source for the MongoDB copy.
+- Only GraphQL `Tour.logs` reads the embedded logs from MongoDB.
+
+The step "the table is dropped only after no route reads it anymore" is therefore not reached yet. Dropping it needs the REST tour routes to read from MongoDB first, and that is separate work.
+
 ## Alternatives we compared
 
 **Keep everything in Postgres, with a `jsonb` column for the track.** One database, one backup, no new connection strings. The list can stop sending the track. We would not be practicing the document model M3 asks for, and the N+1 queries against users and guides remain unless we rewrite them anyway.

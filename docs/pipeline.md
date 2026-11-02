@@ -84,6 +84,37 @@ Tider från en tidigare grön GitHub Actions-körning, innan Integration-jobbet 
 
 Det längsta enskilda steget var `npm ci` i Bygg-jobbet med 10 sekunder.
 
+## Borttagning av den gamla React-klienten (M6 #3)
+
+Den gamla React-klienten i `web/` är borttagen, så bara Vue-klienten i `client/` underhålls, testas och byggs.
+
+### Vyer som flyttades till Vue
+
+`web/` hade sju sidor. Fyra fanns redan i Vue (startsida, guider, turer, inloggning). Tre saknades eller var inte nåbara och portades före borttagningen:
+
+| React-sida (`web/`)   | Vue-vy                                | Åtgärd                                                                 |
+| --------------------- | ------------------------------------- | ---------------------------------------------------------------------- |
+| `GuideDetail.jsx`     | `GuideDetailView.vue`, `/guider/:slug` | Ny vy. Guidens HTML saneras med DOMPurify (teknisk skuld 3).          |
+| `TourDetail.jsx`      | `TourDetailView.vue`, `/turer/:id`    | Vyn fanns men saknade route. Länkar från startsidan och turlistan gick ingenstans. |
+| `Profile.jsx`         | `ProfileView.vue`, `/profil`          | Ny vy som använder Pinia-storen. Utloggning går via routern.          |
+
+### `npm ci` före och efter
+
+Tiderna är steget "Install dependencies" (`npm ci`) i varje jobb.
+
+- **Före:** senaste gröna körningen på `main` (`01fdcce`, 2026-10-27), [run 40572123823](https://github.com/1sa1asdev/Hasta-la-vue-lta/actions/runs/40572123823).
+- **Efter:** senaste körningen på PR #114 (`e36ffcc`), [run 41317466955](https://github.com/1sa1asdev/Hasta-la-vue-lta/actions/runs/41317466955).
+
+| Jobb        | Före | Efter |
+| ----------- | ---: | ----: |
+| Kvalitet    |  9 s |   9 s |
+| Bygg        | 10 s |   5 s |
+| Integration |  4 s |   7 s |
+
+Den första körningen på PR:en ([run 41315344670](https://github.com/1sa1asdev/Hasta-la-vue-lta/actions/runs/41315344670), `ad2b0bf`) tog 45 s, 32 s och 28 s. Det var troligen en kall npm-cache efter ändringen i `package-lock.json` (inte verifierat i loggarna), så den används inte som "efter"-värde. Att ta bort `web/` gav ingen mätbar skillnad i `npm ci`-tid på CI.
+
+Lokalt tog `npm ci` 6 s efter borttagningen (823 paket). Det är inte jämförbart med CI-tiderna och används inte som "efter"-värde.
+
 ## Docker images och publicering
 
 Image-jobbet körs efter att Kvalitet, Bygg och Integration har lyckats. Det bygger Docker-images för API:t (`api/Dockerfile`) och klienten (`client/Dockerfile`).

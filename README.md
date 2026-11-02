@@ -87,7 +87,6 @@ Commit messages and branch names are used as suggestions. See [`tools/pr-builder
 ## Structure
 
 - `api/` – Express + GraphQL Yoga, with Postgres (Drizzle) and MongoDB
-- `web/` – React + Vite
 - `client/` – Vue 3 + Vite, using URQL for GraphQL data
 - `shared/` – Shared TypeScript types for the API and client.
 

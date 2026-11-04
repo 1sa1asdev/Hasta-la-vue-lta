@@ -150,7 +150,7 @@ jobs:
         id: api_meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/1sa1asdev/hasta-la-vue-lta-api
+          images: ghcr.io/mariamagdalenarios/hasta-la-vue-lta-api
           tags: |
             type=sha,format=short,prefix=sha-
 
@@ -158,7 +158,7 @@ jobs:
         id: client_meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/1sa1asdev/hasta-la-vue-lta-client
+          images: ghcr.io/mariamagdalenarios/hasta-la-vue-lta-client
           tags: |
             type=sha,format=short,prefix=sha-
 
@@ -206,7 +206,7 @@ jobs:
             --name "${{ vars.AZURE_APP }}" \
             --resource-group "${{ vars.AZURE_RG }}" \
             --container-name api \
-            --image "ghcr.io/1sa1asdev/hasta-la-vue-lta-api:sha-${GITHUB_SHA::7}"
+            --image "ghcr.io/mariamagdalenarios/hasta-la-vue-lta-api:sha-${GITHUB_SHA::7}"
 
       - name: Deploy client image
         run: |
@@ -214,7 +214,7 @@ jobs:
             --name "${{ vars.AZURE_APP }}" \
             --resource-group "${{ vars.AZURE_RG }}" \
             --container-name client \
-            --image "ghcr.io/1sa1asdev/hasta-la-vue-lta-client:sha-${GITHUB_SHA::7}"
+            --image "ghcr.io/mariamagdalenarios/hasta-la-vue-lta-client:sha-${GITHUB_SHA::7}"
 
       - name: Verify deployment health
         run: |

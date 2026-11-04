@@ -15,8 +15,8 @@ The public client serves the homepage and proxies `/api/` and `/graphql` to the 
 
 The deployed revision uses these public GHCR images:
 
-- `ghcr.io/1sa1asdev/hasta-la-vue-lta-api:sha-63b6f60`
-- `ghcr.io/1sa1asdev/hasta-la-vue-lta-client:sha-63b6f60`
+- `ghcr.io/mariamagdalenarios/hasta-la-vue-lta-api:sha-63b6f60`
+- `ghcr.io/mariamagdalenarios/hasta-la-vue-lta-client:sha-63b6f60`
 
 The SHA is the full `origin/main` commit:
 

@@ -103,6 +103,10 @@ The deployed images use commit `63b6f60ac3983a0e650860aaece7550d73345b9a`, match
 ```bash
 curl https://hasta-la-vue-lta-staging.wittycliff-f2acc780.swedencentral.azurecontainerapps.io/api/health
 ```
+Expected response from the currently deployed revision:
+
+```json
+{"ok":true,"version":"1.4.2","sha":"63b6f60ac3983a0e650860aaece7550d73345b9a","postgres":"ok","mongodb":"ok"}
 
 The Container App scales from zero to one replica. The first request after an idle period starts the API, client, PostgreSQL, and MongoDB containers; see [docs/decisions/hosting.md](docs/decisions/hosting.md) for the staging consequences and startup evidence.
 

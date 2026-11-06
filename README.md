@@ -98,7 +98,7 @@ The staging application is available at:
 
 <https://hasta-la-vue-lta-staging.wittycliff-f2acc780.swedencentral.azurecontainerapps.io>
 
-The deployed images use commit `63b6f60ac3983a0e650860aaece7550d73345b9a`, matching `origin/main`.
+The deployed images use commit `a442f8292e614e17120687f535f2e9e7446a14cb`, matching `origin/main`.
 
 ```bash
 curl https://hasta-la-vue-lta-staging.wittycliff-f2acc780.swedencentral.azurecontainerapps.io/api/health
@@ -106,7 +106,20 @@ curl https://hasta-la-vue-lta-staging.wittycliff-f2acc780.swedencentral.azurecon
 Expected response from the currently deployed revision:
 
 ```json
-{"ok":true,"version":"1.4.2","sha":"63b6f60ac3983a0e650860aaece7550d73345b9a","postgres":"ok","mongodb":"ok"}
+{"ok":true,"version":"1.4.2","sha":"a442f8292e614e17120687f535f2e9e7446a14cb","postgres":"ok","mongodb":"ok"}
+```
+
+Startup logs from the staging database seed and migration include:
+
+```text
+boot: tom databas – seedar
+Seed klar: 12 användare, 40 guider, 200 turer, 5931 loggpunkter.
+boot: running Postgres-to-MongoDB log migration
+Tours:  Postgres 200, MongoDB 200
+Points: Postgres 5931, MongoDB 5931
+Verifierat: inget tappades på vägen.
+boot: log migration verified
+```
 
 The Container App scales from zero to one replica. The first request after an idle period starts the API, client, PostgreSQL, and MongoDB containers; see [docs/decisions/hosting.md](docs/decisions/hosting.md) for the staging consequences and startup evidence.
 

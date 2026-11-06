@@ -1,6 +1,6 @@
 # Hosting decision: Azure Container Apps staging
 
-**Date:** 2026-11-02
+**Date:** 2026-11-06
 **Status:** Staging deployed
 
 ## Public staging URL
@@ -15,17 +15,17 @@ The public client serves the homepage and proxies `/api/` and `/graphql` to the 
 
 The deployed revision uses these public GHCR images:
 
-- `ghcr.io/mariamagdalenarios/hasta-la-vue-lta-api:sha-63b6f60`
-- `ghcr.io/mariamagdalenarios/hasta-la-vue-lta-client:sha-63b6f60`
+- `ghcr.io/mariamagdalenarios/hasta-la-vue-lta-api:sha-a442f82`
+- `ghcr.io/mariamagdalenarios/hasta-la-vue-lta-client:sha-a442f82`
 
 The SHA is the full `origin/main` commit:
 
-`63b6f60ac3983a0e650860aaece7550d73345b9a`
+`a442f8292e614e17120687f535f2e9e7446a14cb`
 
-On 2026-11-02, the public health endpoint returned:
+On 2026-11-06, the public health endpoint returned:
 
 ```json
-{"ok":true,"version":"1.4.2","sha":"63b6f60ac3983a0e650860aaece7550d73345b9a","postgres":"ok","mongodb":"ok"}
+{"ok":true,"version":"1.4.2","sha":"a442f8292e614e17120687f535f2e9e7446a14cb","postgres":"ok","mongodb":"ok"}
 ```
 
 The homepage returned HTTP 200 and `/api/tours` returned seeded tour data.
@@ -34,15 +34,20 @@ The homepage returned HTTP 200 and `/api/tours` returned seeded tour data.
 
 The Container App is configured with `minReplicas: 0` and `maxReplicas: 1`. This keeps the staging environment at zero replicas while idle, but the first request after idle starts all four containers in the single replica: client, API, PostgreSQL, and MongoDB.
 
-Startup logs from the empty staging database on 2026-11-02:
+Startup logs from the empty staging database on 2026-11-06:
 
 ```text
-2026-11-02T22:39:32.8799596Z boot: tom databas – seedar
-2026-11-02T22:39:33.9337061Z Seed klar: 12 användare, 40 guider, 200 turer, 6109 loggpunkter.
-2026-11-02T22:39:33.9364005Z API lyssnar på http://localhost:4000
+2026-11-06T21:39:16.6635658Z boot: tom databas – seedar
+2026-11-06T21:39:17.9313492Z Seed klar: 12 användare, 40 guider, 200 turer, 5931 loggpunkter.
+2026-11-06T21:39:18.9697335Z boot: running Postgres-to-MongoDB log migration
+2026-11-06T21:39:18.9697600Z Tours:  Postgres 200, MongoDB 200
+2026-11-06T21:39:18.9697706Z Points: Postgres 5931, MongoDB 5931
+2026-11-06T21:39:18.9697723Z Verifierat: inget tappades på vägen.
+2026-11-06T21:39:18.9697737Z boot: log migration verified
+2026-11-06T21:39:18.9697753Z API lyssnar på http://localhost:4000
 ```
 
-The measured container startup from the seed message to the API listening message was approximately 1.1 seconds. This measures application startup after the platform has started the replica; Azure image pull and scale-from-zero time can add to the first public request.
+The measured application startup from the seed message to the API listening message was approximately 1.2 seconds. This measures application startup after the platform has started the replica; Azure image pull and scale-from-zero time can add to the first public request.
 
 ## Consequences
 

@@ -18,17 +18,21 @@ const boot = async () => {
       console.log('boot: tom databas – seedar');
       await seedDatabase();
     }
-        await mongo.connect();
-    try {
+    // Connect MongoDB and keep the shared client open.
+    await mongo.connect();
+
+    // Run log migration only when explicitly enabled.
+    if (process.env.MIGRATE_LOGS_ON_START === '1') {
+      console.log('boot: running Postgres-to-MongoDB log migration');
+
       await migrateLogs();
       const verified = await verifyLogs();
       if (!verified) {
         throw new Error('Postgres-to-MongoDB verification failed');
       }
-    } finally {
-      await mongo.close();
+      console.log('boot: log migration verified');
     }
-    // app.listen(4000, () => {
+
     app.listen(config.port, () => {
       console.log(`API lyssnar på http://localhost:${config.port}`);
     });

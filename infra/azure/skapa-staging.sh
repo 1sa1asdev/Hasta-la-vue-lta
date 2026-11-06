@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -euo pipefail
 
 : "${REPO:?Sätt REPO=<ägare>/<repo> (t.ex. jonatanhallenberg/utpost-cloud-labb)}"

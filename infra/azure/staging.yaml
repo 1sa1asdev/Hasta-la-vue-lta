@@ -40,6 +40,8 @@ properties:
             value: "4000"
           - name: SEED_ON_START
             value: "1"
+          - name: MIGRATE_LOGS_ON_START
+            value: "1"
           - name: DATABASE_URL
             secretRef: database-url
           - name: MONGO_URL

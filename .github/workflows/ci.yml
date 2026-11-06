@@ -150,7 +150,7 @@ jobs:
         id: api_meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/1sa1asdev/hasta-la-vue-lta-api
+          images: ghcr.io/mariamagdalenarios/hasta-la-vue-lta-api
           tags: |
             type=sha,format=short,prefix=sha-
 
@@ -158,7 +158,7 @@ jobs:
         id: client_meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/1sa1asdev/hasta-la-vue-lta-client
+          images: ghcr.io/mariamagdalenarios/hasta-la-vue-lta-client
           tags: |
             type=sha,format=short,prefix=sha-
 
@@ -181,3 +181,42 @@ jobs:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           tags: ${{ steps.client_meta.outputs.tags }}
           labels: ${{ steps.client_meta.outputs.labels }}
+  deploy:
+    name: Deploy Azure staging
+    runs-on: ubuntu-latest
+    needs: [quality, build, integration, image]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: azure-staging
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Log in to Azure with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy API image
+        run: |
+          az containerapp update \
+            --name "${{ vars.AZURE_APP }}" \
+            --resource-group "${{ vars.AZURE_RG }}" \
+            --container-name api \
+            --image "ghcr.io/mariamagdalenarios/hasta-la-vue-lta-api:sha-${GITHUB_SHA::7}"
+
+      - name: Deploy client image
+        run: |
+          az containerapp update \
+            --name "${{ vars.AZURE_APP }}" \
+            --resource-group "${{ vars.AZURE_RG }}" \
+            --container-name client \
+            --image "ghcr.io/mariamagdalenarios/hasta-la-vue-lta-client:sha-${GITHUB_SHA::7}"
+
+      - name: Verify deployment health
+        run: |
+          curl --fail --retry 12 --retry-delay 10 --retry-all-errors \
+            "${{ vars.AZURE_URL }}/api/health"

@@ -1,5 +1,6 @@
 import { pool } from './client.js';
 import { mongo, toursCollection } from './mongo.js';
+import { fileURLToPath } from 'node:url';
 
 const toLogDoc = (l) => ({
   id: l.id,
@@ -23,7 +24,7 @@ const toTourDoc = (tour, logs) => ({
   stats: { points: logs.length },
 });
 
-const migrate = async () => {
+export const migrateLogs = async () => {
   const tours = (await pool.query('select * from tours order by id')).rows;
   const logRows = (
     await pool.query('select * from tour_logs order by tour_id, recorded_at')
@@ -51,7 +52,7 @@ const migrate = async () => {
   }
 };
 
-const verify = async () => {
+export const verifyLogs = async () => {
   const pgTours = Number(
     (await pool.query('select count(*) from tours')).rows[0].count,
   );
@@ -70,22 +71,27 @@ const verify = async () => {
   console.log(`Points: Postgres ${pgLogs}, MongoDB ${mongoLogs}`);
 
   const ok = pgTours === mongoTours && pgLogs === mongoLogs;
-  console.log(ok ? 'Verification OK' : 'Verification FAILED');
+  console.log(
+    ok
+      ? 'Verifierat: inget tappades på vägen.'
+      : 'Verifiering MISSLYCKADES.',
+  );
   return ok;
 };
-
 const run = async () => {
   await mongo.connect();
   try {
-    if (!process.argv.includes('--verify-only')) await migrate();
-    if (!(await verify())) process.exitCode = 1;
+    if (!process.argv.includes('--verify-only')) await migrateLogs();
+    if (!(await verifyLogs())) process.exitCode = 1;
   } finally {
     await mongo.close();
     await pool.end();
   }
 };
 
-run().catch((err) => {
-  console.error(err.message);
-  process.exit(1);
-});
+if (process.argv[1]=== fileURLToPath(import.meta.url)) {
+  run().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

@@ -60,7 +60,7 @@ The API loads the root `.env` automatically when it starts, so the local command
 
 The API reads `JWT_SECRET` only from the environment; no secret is stored in the source code. An earlier secret was committed in the initial commit and has been retired; `git log --oneline -S 'utpost-super-secret'` shows where it was introduced and removed. Because it stays in Git history, it must never be trusted again.
 
-- **Local development:** your own value in the untracked `.env` (see `environment.example`). Docker Compose falls back to a clearly labelled local-only value if `JWT_SECRET` is not set.
+- **Local development:** your own value in the untracked `.env` (see `.env.example`). Docker Compose falls back to a clearly labelled local-only value if `JWT_SECRET` is not set.
 - **Azure staging:** a newly generated value stored as an Azure Container Apps secret and passed to the API as the `JWT_SECRET` environment variable. The value is not in the repository, documentation, or workflow logs.
 - **CI:** the integration job uses a throwaway test value that is separate from every other environment.
 
@@ -92,7 +92,23 @@ Commit messages and branch names are used as suggestions. See [`tools/pr-builder
 
 ## Deployment
 
-Ask Marcus.
+### Azure staging
+
+The staging application is available at:
+
+<https://hasta-la-vue-lta-staging.wittycliff-f2acc780.swedencentral.azurecontainerapps.io>
+
+The deployed images use commit `63b6f60ac3983a0e650860aaece7550d73345b9a`, matching `origin/main`.
+
+```bash
+curl https://hasta-la-vue-lta-staging.wittycliff-f2acc780.swedencentral.azurecontainerapps.io/api/health
+```
+Expected response from the currently deployed revision:
+
+```json
+{"ok":true,"version":"1.4.2","sha":"63b6f60ac3983a0e650860aaece7550d73345b9a","postgres":"ok","mongodb":"ok"}
+
+The Container App scales from zero to one replica. The first request after an idle period starts the API, client, PostgreSQL, and MongoDB containers; see [docs/decisions/hosting.md](docs/decisions/hosting.md) for the staging consequences and startup evidence.
 
 ## Commands
 

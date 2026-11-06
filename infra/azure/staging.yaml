@@ -1,0 +1,73 @@
+location: __LOCATION__
+name: __APP__
+resourceGroup: __RG__
+type: Microsoft.App/containerApps
+properties:
+  managedEnvironmentId: __ENV_ID__
+  configuration:
+    activeRevisionsMode: Single
+    ingress:
+      external: true
+      targetPort: 80          # client (nginx) – det enda som nås utifrån
+      transport: auto
+      allowInsecure: false
+    secrets:
+      - name: jwt-secret
+        value: __JWT_SECRET__
+      - name: database-url
+        value: postgres://utpost:__DB_PASSWORD__@localhost:5432/utpost
+      - name: mongo-url
+        value: mongodb://utpost:__DB_PASSWORD__@localhost:27017/utpost?authSource=admin
+      - name: db-password
+        value: __DB_PASSWORD__
+  template:
+    containers:
+      - name: client
+        image: __IMAGE_CLIENT__
+        resources:
+          cpu: 0.25
+          memory: 0.5Gi
+        env:
+          - name: API_UPSTREAM
+            value: http://localhost:4000   # api är en sidecar – samma localhost
+      - name: api
+        image: __IMAGE_API__
+        resources:
+          cpu: 0.5
+          memory: 1Gi
+        env:
+          - name: PORT
+            value: "4000"
+          - name: SEED_ON_START
+            value: "1"
+          - name: DATABASE_URL
+            secretRef: database-url
+          - name: MONGO_URL
+            secretRef: mongo-url
+          - name: JWT_SECRET
+            secretRef: jwt-secret
+      - name: postgres
+        image: postgres:16
+        resources:
+          cpu: 0.5
+          memory: 1Gi
+        env:
+          - name: POSTGRES_USER
+            value: utpost
+          - name: POSTGRES_DB
+            value: utpost
+          - name: POSTGRES_PASSWORD
+            secretRef: db-password
+      - name: mongo
+        image: mongo:8.2
+        resources:
+          cpu: 0.5
+          memory: 1Gi
+        env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            value: utpost
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            secretRef: db-password
+    scale:
+      minReplicas: 0           # skalar till noll mellan passen – kostar inget, men första anropet väcker allt (~1 min)
+      maxReplicas: 1           # en replica: databaserna lever i den

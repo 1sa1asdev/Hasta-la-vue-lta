@@ -85,6 +85,29 @@ Actual resource consumption and Azure costs must be checked in Azure Cost Manage
 
 ## 8. Current deployment status
 
-This document describes the intended staging configuration in the repository.
+Azure staging is deployed and has been successfully verified in Sweden Central.
 
-The existence of an Azure resource group does not confirm that the application is deployed. Deployment status, running revisions, persistence, and production configuration must be verified separately.
+**Verified deployment details (2026-11-07):**
+
+- **Staging URL:** https://hasta-la-vue-lta-staging.wittycliff-f2acc780.swedencentral.azurecontainerapps.io
+- **Branch:** `main`
+- **Expected commit SHA:** `171b3496f79deff8464f8f6944c5e20fdfb40953`
+- **Deployed API SHA:** `171b3496f79deff8464f8f6944c5e20fdfb40953`
+- **API version:** `1.4.2`
+- **API health:** `ok`
+- **PostgreSQL health:** `ok`
+- **MongoDB health:** `ok`
+
+The `/api/health` endpoint returned a successful response (`HTTP 200`). The deployed API SHA matches the current `main` commit.
+
+The staging homepage and tour list have also been verified to load successfully.
+
+This confirms that the Sweden Central staging deployment is running and that its API is connected successfully to both databases.
+
+**Remaining verification:**
+
+- Measure and document actual cold-start time.
+- Verify database persistence across container restarts.
+- Monitor actual Azure resource consumption and costs.
+
+The deployment verification above applies to the Sweden Central staging URL, not other Azure staging environments.
